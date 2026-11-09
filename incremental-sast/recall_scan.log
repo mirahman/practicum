@@ -1,0 +1,60 @@
+commit 0aaf7584dd15  (2 changed go files)
+  full          0 findings      0.2s  targets=1
+  diff          0 findings      0.1s  targets=2
+  full          0 findings      0.2s  targets=1
+
+--- metrics ---
+  repo                 gitea
+  commit_sha           0aaf7584dd15
+  engine               semgrep
+  n_full               0
+  n_diff               0
+  n_baseline           0
+  n_spurious           0
+  n_missed             0
+  n_reported           0
+  n_survivors          0
+  spurious_rate        0.0
+  miss_rate            0.0
+  survival_rate        0.0
+  reported_precision   1.0
+commit 6558f0f6c0bf  (2 changed go files)
+  full          0 findings      0.1s  targets=1
+  diff          0 findings      0.2s  targets=2
+  full          0 findings      0.2s  targets=1
+
+--- metrics ---
+  repo                 gitea
+  commit_sha           6558f0f6c0bf
+  engine               semgrep
+  n_full               0
+  n_diff               0
+  n_baseline           0
+  n_spurious           0
+  n_missed             0
+  n_reported           0
+  n_survivors          0
+  spurious_rate        0.0
+  miss_rate            0.0
+  survival_rate        0.0
+  reported_precision   1.0
+commit de368658fc40  (3 changed go files)
+  full          0 findings      0.2s  targets=1
+  diff          0 findings      0.2s  targets=3
+  full          0 findings      0.2s  targets=1
+
+--- metrics ---
+  repo                 gitea
+  commit_sha           de368658fc40
+  engine               semgrep
+  n_full               0
+  n_diff               0
+  n_baseline           0
+  n_spurious           0
+  n_missed             0
+  n_reported           0
+  n_survivors          0
+  spurious_rate        0.0
+  miss_rate            0.0
+  survival_rate        0.0
+  reported_precision   1.0

@@ -1,0 +1,43 @@
+id,label,reason
+1,y,flagged line is inside WriteStickyCookie which this commit changes (and the cookie struct it reads)
+2,n,wrr.go unchanged; commit is header aliasing; unrelated cookie code
+3,n,router.go unchanged; commit is header aliasing
+4,n,cookie.go unchanged; commit is HTTP/3 transport
+5,n,http3 server file unchanged by this commit; header aliasing option is unrelated to the TLS config line
+6,y,same function and struct changes as finding 1
+7,y,flagged function calls lego.CreateCertPool and the commit bumps the lego dependency
+8,n,HTTP-01 challenge handler unchanged; commit is DNS challenge propagation
+9,n,roundtripper.go unchanged by this commit; commit is header aliasing
+10,y,flagged line is inside WriteStickyCookie which this commit changes
+11,n,udp service.go unchanged; commit is HTTP/3 transport
+12,n,HTTP-01 challenge handler unchanged; commit is DNS challenge propagation
+13,n,BORDERLINE: same file changed (BuildUDP) but flagged line is an import and no visible dependency
+14,n,BORDERLINE: roundtripper.go changed only in NTLM header matching; flagged TLS config code is a different function
+15,n,BORDERLINE: same file changed (BuildTCP) but flagged line is an import and no visible dependency
+16,n,wrr.go unchanged; commit is HTTP/3 transport
+17,n,tcp router unchanged; commit is HTTP/3 transport
+18,n,BORDERLINE: same file changed in DNSChallenge and getClient but the flagged TLS config helper is not visibly connected
+19,n,HTTP-01 challenge handler unchanged; no lego call visible in the flagged code
+20,n,p2c.go unchanged; commit is sticky cookie expiry; flagged line is an import
+21,n,udp service.go unchanged; commit is header aliasing
+22,n,HTTP-01 challenge handler unchanged; commit is DNS challenge propagation
+23,n,file changed only in log levels in other functions; flagged sha1 is basic auth hashing
+24,n,service.go unchanged; commit is HTTP/3 transport
+25,n,wrr.go unchanged; commit is HTTP/3 transport
+26,n,service.go unchanged; commit is header aliasing
+27,n,HTTP-01 challenge handler unchanged; commit is DNS challenge propagation
+28,n,tcp service.go unchanged; commit is HTTP/3 transport
+29,n,tcp service.go unchanged; commit is header aliasing
+30,n,proxy.go unchanged; commit is header aliasing
+31,n,BORDERLINE: same file changed (DNSChallenge, getClient) but the flagged TLS config helper is not visibly connected
+32,y,flagged function calls lego.CreateCertPool and the commit bumps the lego dependency
+33,n,cookie.go unchanged; commit is header aliasing
+34,n,BORDERLINE: only a comment was added in the same function; flagged line behaves the same
+35,n,p2c.go unchanged; commit is sticky cookie expiry; flagged line is an import
+36,y,flagged line is inside WriteStickyCookie which this commit changes
+37,y,flagged TLS config is part of the struct literal in newHTTP3Server that this commit changes
+38,n,proxy.go unchanged; commit is HTTP/3 transport; flagged code is an error writer
+39,n,file changed only in rewriteRequestBuilder; flagged code is a separate error handler
+40,n,wrr.go unchanged; commit is header aliasing
+41,n,BORDERLINE: only a comment was added in the same function; flagged line behaves the same
+42,n,HTTP-01 challenge handler unchanged; no lego call visible in the flagged code

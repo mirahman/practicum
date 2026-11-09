@@ -1,0 +1,18 @@
+{
+  "go": [
+    {
+      "name": "REPLACE-ME",
+      "url": "https://github.com/OWNER/REPO",
+      "lang": "go",
+      "notes": "Criteria: 500-5000 source files, active history, server-side HTTP handling, permissive license. Check size: git ls-files '*.go' | wc -l"
+    }
+  ],
+  "typescript": [
+    {
+      "name": "REPLACE-ME",
+      "url": "https://github.com/OWNER/REPO",
+      "lang": "typescript",
+      "notes": "Express or NestJS application, not a library. Request-to-sink taint flows must exist."
+    }
+  ]
+}

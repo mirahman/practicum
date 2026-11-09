@@ -1,0 +1,1501 @@
+##### FINDING 1  rule=open-redirect  file=cmd/web.go  flagged_line=89
+commit message: fix(process): reap entire process group on cmd.Cancel (#39143)
+files changed by commit (21): .golangci.yml, cmd/serv.go, modules/git/gitcmd/command.go, modules/git/gpg.go, modules/graceful/manager.go, modules/markup/external/external.go, modules/process/command.go, modules/process/command_unix.go, modules/process/command_unix_test.go, modules/process/command_windows.go, modules/process/error.go, modules/process/manager.go, modules/process/manager_exec.go, modules/process/manager_test.go, modules/process/manager_unix.go, modules/process/manager_windows.go, modules/ssh/ssh.go, services/asymkey/commit.go, services/asymkey/sign.go, services/mailer/sender/sendmail.go, tests/integration/gpg_ssh_git_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   81: 	dest := strings.TrimSuffix(setting.AppURL, "/")
+   82: 	log.Info("Redirecting: %s to %s", source, dest)
+   83: 
+   84: 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+   85: 		target := dest + r.URL.Path
+   86: 		if len(r.URL.RawQuery) > 0 {
+   87: 			target += "?" + r.URL.RawQuery
+   88: 		}
+>> 89: 		http.Redirect(w, r, target, http.StatusTemporaryRedirect)
+   90: 	})
+   91: 
+   92: 	err := runHTTP("tcp", source, "HTTP Redirector", handler, setting.RedirectorUseProxyProtocol)
+   93: 	if err != nil {
+   94: 		log.Fatal("Failed to start port redirection: %v", err)
+   95: 	}
+   96: }
+   97: 
+
+##### FINDING 2  rule=unsafe-template-type  file=routers/web/auth/oauth2_provider.go  flagged_line=356
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   348: 
+   349: 	// show authorize page to grant access
+   350: 	ctx.Data["Application"] = app
+   351: 	ctx.Data["RedirectURI"] = form.RedirectURI
+   352: 	ctx.Data["State"] = form.State
+   353: 	ctx.Data["Scope"] = form.Scope
+   354: 	ctx.Data["Nonce"] = form.Nonce
+   355: 	if user != nil {
+>> 356: 		ctx.Data["ApplicationCreatorLinkHTML"] = template.HTML(fmt.Sprintf(`<a href="%s">@%s</a>`, html.EscapeString(user.HomeLink()), html.EscapeString(user.Name)))
+   357: 	} else {
+   358: 		ctx.Data["ApplicationCreatorLinkHTML"] = template.HTML(fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(setting.AppSubURL+"/"), html.EscapeString(setting.AppName)))
+   359: 	}
+   360: 	ctx.Data["ApplicationRedirectDomainHTML"] = template.HTML("<strong>" + html.EscapeString(form.RedirectURI) + "</strong>")
+   361: 	// TODO document SESSION <=> FORM
+   362: 	err = ctx.Session.Set("client_id", app.ClientID)
+   363: 	if err != nil {
+   364: 		handleServerError(ctx, form.State, form.RedirectURI)
+
+##### FINDING 3  rule=unsafe-template-type  file=routers/web/repo/setting/lfs.go  flagged_line=311
+commit message: enhance(repo): unify diff stats on commit pages, misc diff tweaks (#39134)
+files changed by commit (10): options/locale/locale_en-US.json, routers/web/repo/commit.go, routers/web/repo/compare.go, routers/web/repo/pull.go, templates/repo/commit_page.tmpl, templates/repo/diff/box.tmpl, web_src/css/modules/segment.css, web_src/css/repo.css, web_src/css/review.css, web_src/js/components/DiffFileTree.vue
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   303: 			fmt.Fprintf(&output, `<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, line)
+   304: 		}
+   305: 		ctx.Data["FileContent"] = gotemplate.HTML(output.String())
+   306: 
+   307: 		output.Reset()
+   308: 		for i := 0; i < len(lines); i++ {
+   309: 			fmt.Fprintf(&output, `<span id="L%d">%d</span>`, i+1, i+1)
+   310: 		}
+>> 311: 		ctx.Data["LineNums"] = gotemplate.HTML(output.String())
+   312: 
+   313: 	case st.IsVideo():
+   314: 		ctx.Data["IsVideoFile"] = true
+   315: 	case st.IsAudio():
+   316: 		ctx.Data["IsAudioFile"] = true
+   317: 	case st.IsImage() && (setting.UI.SVG.Enabled || !st.IsSvgImage()):
+   318: 		ctx.Data["IsImageFile"] = true
+   319: 	default:
+
+##### FINDING 4  rule=invalid-usage-of-modified-variable  file=routers/web/repo/githttp.go  flagged_line=108
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   100: 
+   101: 	owner := ctx.ContextUser
+   102: 	if !owner.IsOrganization() && !owner.IsActive {
+   103: 		ctx.PlainText(http.StatusForbidden, "Repository cannot be accessed. You cannot push or open issues/pull-requests.")
+   104: 		return nil
+   105: 	}
+   106: 
+   107: 	repoExist := true
+>> 108: 	repo, err := repo_model.GetRepositoryByName(ctx, owner.ID, repoName)
+   109: 	if err != nil {
+   110: 		if !repo_model.IsErrRepoNotExist(err) {
+   111: 			ctx.ServerError("GetRepositoryByName", err)
+   112: 			return nil
+   113: 		}
+   114: 
+   115: 		if redirectRepoID, err := repo_model.LookupRedirect(ctx, owner.ID, repoName); err == nil {
+   116: 			context.RedirectToRepo(ctx.Base, redirectRepoID)
+
+##### FINDING 5  rule=invalid-usage-of-modified-variable  file=routers/web/org/projects.go  flagged_line=193
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   185: 	case "close":
+   186: 		toClose = true
+   187: 	default:
+   188: 		ctx.JSONRedirect(ctx.ContextUser.HomeLink() + "/-/projects")
+   189: 		return
+   190: 	}
+   191: 	id := ctx.PathParamInt64("id")
+   192: 
+>> 193: 	project, err := project_model.GetProjectByIDAndOwner(ctx, id, ctx.ContextUser.ID)
+   194: 	if err != nil {
+   195: 		ctx.NotFoundOrServerError("GetProjectByID", project_model.IsErrProjectNotExist, err)
+   196: 		return
+   197: 	}
+   198: 
+   199: 	if err := project_model.ChangeProjectStatusByRepoIDAndID(ctx, 0, project.ID, toClose); err != nil {
+   200: 		ctx.NotFoundOrServerError("ChangeProjectStatusByRepoIDAndID", project_model.IsErrProjectNotExist, err)
+   201: 		return
+
+##### FINDING 6  rule=invalid-usage-of-modified-variable  file=services/context/repo.go  flagged_line=571
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   563: 		ctx.Redirect(path.Join(setting.AppSubURL, redirectPath))
+   564: 		return
+   565: 	}
+   566: }
+   567: 
+   568: func repoAssignmentPrepareRepo(ctx *Context, data *repoAssignmentPrepareDataStruct) {
+   569: 	repoName := data.repoName
+   570: 	// Get repository.
+>> 571: 	repo, err := repo_model.GetRepositoryByName(ctx, ctx.Repo.Owner.ID, repoName)
+   572: 	if err != nil {
+   573: 		if repo_model.IsErrRepoNotExist(err) {
+   574: 			redirectRepoID, err := repo_model.LookupRedirect(ctx, ctx.Repo.Owner.ID, repoName)
+   575: 			if err == nil {
+   576: 				RedirectToRepo(ctx.Base, redirectRepoID)
+   577: 			} else if repo_model.IsErrRedirectNotExist(err) {
+   578: 				if ctx.FormString("go-get") == "1" {
+   579: 					EarlyResponseForGoGetMeta(ctx)
+
+##### FINDING 7  rule=unsafe-template-type  file=routers/web/repo/setting/lfs.go  flagged_line=311
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   303: 			fmt.Fprintf(&output, `<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, line)
+   304: 		}
+   305: 		ctx.Data["FileContent"] = gotemplate.HTML(output.String())
+   306: 
+   307: 		output.Reset()
+   308: 		for i := 0; i < len(lines); i++ {
+   309: 			fmt.Fprintf(&output, `<span id="L%d">%d</span>`, i+1, i+1)
+   310: 		}
+>> 311: 		ctx.Data["LineNums"] = gotemplate.HTML(output.String())
+   312: 
+   313: 	case st.IsVideo():
+   314: 		ctx.Data["IsVideoFile"] = true
+   315: 	case st.IsAudio():
+   316: 		ctx.Data["IsAudioFile"] = true
+   317: 	case st.IsImage() && (setting.UI.SVG.Enabled || !st.IsSvgImage()):
+   318: 		ctx.Data["IsImageFile"] = true
+   319: 	default:
+
+##### FINDING 8  rule=unsafe-template-type  file=modules/templates/util_render.go  flagged_line=190
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   182: 	val := emoji.FromCode(reaction)
+   183: 	if val != nil {
+   184: 		return template.HTML(val.Emoji)
+   185: 	}
+   186: 	val = emoji.FromAlias(reaction)
+   187: 	if val != nil {
+   188: 		return template.HTML(val.Emoji)
+   189: 	}
+>> 190: 	return template.HTML(fmt.Sprintf(`<img alt=":%s:" src="%s/assets/img/emoji/%s.png"></img>`, reaction, setting.StaticURLPrefix, url.PathEscape(reaction)))
+   191: }
+   192: 
+   193: func (ut *RenderUtils) MarkdownToHtml(input string) template.HTML {
+   194: 	output, err := markdown.RenderString(markup.NewRenderContext(ut.ctx).WithMetas(markup.ComposeSimpleDocumentMetas()), input)
+   195: 	if err != nil {
+   196: 		log.Error("RenderString: %v", err)
+   197: 	}
+   198: 	return output
+
+##### FINDING 9  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/issue_reaction.go  flagged_line=430
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   422: 
+   423: 	if issue.IsLocked && !ctx.Repo.Permission.CanWriteIssuesOrPulls(issue.IsPull) {
+   424: 		ctx.APIError(http.StatusForbidden, "no permission to change reaction")
+   425: 		return
+   426: 	}
+   427: 
+   428: 	if isCreateType {
+   429: 		// PostIssueReaction part
+>> 430: 		reaction, err := issue_service.CreateIssueReaction(ctx, ctx.Doer, issue, form.Reaction)
+   431: 		if err != nil {
+   432: 			if issues_model.IsErrForbiddenIssueReaction(err) || errors.Is(err, user_model.ErrBlockedUser) {
+   433: 				ctx.APIError(http.StatusForbidden, err.Error())
+   434: 			} else if issues_model.IsErrReactionAlreadyExist(err) {
+   435: 				ctx.JSON(http.StatusOK, api.Reaction{
+   436: 					User:     convert.ToUser(ctx, ctx.Doer, ctx.Doer),
+   437: 					Reaction: reaction.Type,
+   438: 					Created:  reaction.CreatedUnix.AsTime(),
+
+##### FINDING 10  rule=unsafe-template-type  file=routers/web/repo/setting/lfs.go  flagged_line=305
+commit message: enhance(repo): unify diff stats on commit pages, misc diff tweaks (#39134)
+files changed by commit (10): options/locale/locale_en-US.json, routers/web/repo/commit.go, routers/web/repo/compare.go, routers/web/repo/pull.go, templates/repo/commit_page.tmpl, templates/repo/diff/box.tmpl, web_src/css/modules/segment.css, web_src/css/repo.css, web_src/css/review.css, web_src/js/components/DiffFileTree.vue
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   297: 		}
+   298: 		for index, line := range lines {
+   299: 			line = gotemplate.HTMLEscapeString(line)
+   300: 			if index != len(lines)-1 {
+   301: 				line += "\n"
+   302: 			}
+   303: 			fmt.Fprintf(&output, `<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, line)
+   304: 		}
+>> 305: 		ctx.Data["FileContent"] = gotemplate.HTML(output.String())
+   306: 
+   307: 		output.Reset()
+   308: 		for i := 0; i < len(lines); i++ {
+   309: 			fmt.Fprintf(&output, `<span id="L%d">%d</span>`, i+1, i+1)
+   310: 		}
+   311: 		ctx.Data["LineNums"] = gotemplate.HTML(output.String())
+   312: 
+   313: 	case st.IsVideo():
+
+##### FINDING 11  rule=import-text-template  file=modules/setting/ssh.go  flagged_line=9
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: // Copyright 2023 The Gitea Authors. All rights reserved.
+   2: // SPDX-License-Identifier: MIT
+   3: 
+   4: package setting
+   5: 
+   6: import (
+   7: 	"path/filepath"
+   8: 	"strings"
+>> 9: 	"text/template"
+   10: 	"time"
+   11: 
+   12: 	"gitea.dev/modules/consts"
+   13: 	"gitea.dev/modules/log"
+   14: 	"gitea.dev/modules/util"
+   15: 
+   16: 	gossh "golang.org/x/crypto/ssh"
+   17: )
+
+##### FINDING 12  rule=invalid-usage-of-modified-variable  file=routers/web/repo/projects.go  flagged_line=279
+commit message: enhance(repo): unify diff stats on commit pages, misc diff tweaks (#39134)
+files changed by commit (10): options/locale/locale_en-US.json, routers/web/repo/commit.go, routers/web/repo/compare.go, routers/web/repo/pull.go, templates/repo/commit_page.tmpl, templates/repo/diff/box.tmpl, web_src/css/modules/segment.css, web_src/css/repo.css, web_src/css/review.css, web_src/js/components/DiffFileTree.vue
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   271: 		ctx.Redirect(p.Link(ctx))
+   272: 	} else {
+   273: 		ctx.Redirect(ctx.Repo.RepoLink + "/projects")
+   274: 	}
+   275: }
+   276: 
+   277: // ViewProject renders the project with board view
+   278: func ViewProject(ctx *context.Context) {
+>> 279: 	project, err := project_model.GetProjectByID(ctx, ctx.PathParamInt64("id"))
+   280: 	if err != nil {
+   281: 		if project_model.IsErrProjectNotExist(err) {
+   282: 			ctx.NotFound(nil)
+   283: 		} else {
+   284: 			ctx.ServerError("GetProjectByID", err)
+   285: 		}
+   286: 		return
+   287: 	}
+
+##### FINDING 13  rule=unsafe-template-type  file=routers/web/repo/view.go  flagged_line=168
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   160: 	go func() {
+   161: 		sb := &strings.Builder{}
+   162: 		if markup.RendererNeedPostProcess(renderer) {
+   163: 			escaped, _ = charset.EscapeControlReader(markupRd, sb, ctx.Locale, charset.EscapeOptionsForView())
+   164: 		} else {
+   165: 			escaped = &charset.EscapeStatus{}
+   166: 			_, _ = io.Copy(sb, markupRd)
+   167: 		}
+>> 168: 		output = template.HTML(sb.String())
+   169: 		close(done)
+   170: 	}()
+   171: 
+   172: 	err = markup.RenderWithRenderer(renderCtx, renderer, input, markupWr)
+   173: 	_ = markupWr.CloseWithError(err)
+   174: 	<-done
+   175: 	return escaped, output, err
+   176: }
+
+##### FINDING 14  rule=unsafe-template-type  file=routers/web/repo/setting/lfs.go  flagged_line=305
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   297: 		}
+   298: 		for index, line := range lines {
+   299: 			line = gotemplate.HTMLEscapeString(line)
+   300: 			if index != len(lines)-1 {
+   301: 				line += "\n"
+   302: 			}
+   303: 			fmt.Fprintf(&output, `<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, line)
+   304: 		}
+>> 305: 		ctx.Data["FileContent"] = gotemplate.HTML(output.String())
+   306: 
+   307: 		output.Reset()
+   308: 		for i := 0; i < len(lines); i++ {
+   309: 			fmt.Fprintf(&output, `<span id="L%d">%d</span>`, i+1, i+1)
+   310: 		}
+   311: 		ctx.Data["LineNums"] = gotemplate.HTML(output.String())
+   312: 
+   313: 	case st.IsVideo():
+
+##### FINDING 15  rule=unsafe-template-type  file=services/context/context_template.go  flagged_line=97
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   89: }
+   90: 
+   91: // AppFullLink returns a full URL link with AppSubURL for the given app link
+   92: // If no link is given, it returns the current app full URL with sub-path but without trailing slash (that's why it is not named as AppURL)
+   93: func (c TemplateContext) AppFullLink(link ...string) template.URL {
+   94: 	s := httplib.GuessCurrentAppURL(c.parentContext())
+   95: 	s = strings.TrimSuffix(s, "/")
+   96: 	if len(link) == 0 {
+>> 97: 		return template.URL(s)
+   98: 	}
+   99: 	return template.URL(s + "/" + strings.TrimPrefix(link[0], "/"))
+   100: }
+   101: 
+   102: func (c TemplateContext) ScriptImport(path string, typ ...string) template.HTML {
+   103: 	if len(typ) > 0 {
+   104: 		if typ[0] == "module" {
+   105: 			return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" type="module" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+
+##### FINDING 16  rule=unsafe-template-type  file=services/context/context_template.go  flagged_line=109
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   101: 
+   102: func (c TemplateContext) ScriptImport(path string, typ ...string) template.HTML {
+   103: 	if len(typ) > 0 {
+   104: 		if typ[0] == "module" {
+   105: 			return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" type="module" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   106: 		}
+   107: 		panic("unsupported script type: " + typ[0])
+   108: 	}
+>> 109: 	return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   110: }
+   111: 
+   112: func (c TemplateContext) CspScriptNonce() (ret string) {
+   113: 	return CspScriptNonce(c.parentContext())
+   114: }
+   115: 
+   116: func WebContentSecurityPolicy(scriptNonce string) string {
+   117: 	if setting.Security.ContentSecurityPolicyGeneral == "unset" {
+
+##### FINDING 17  rule=unsafe-template-type  file=routers/web/repo/wiki.go  flagged_line=261
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   253: 
+   254: 	renderFn := func(data []byte) (escaped *charset.EscapeStatus, output template.HTML, err error) {
+   255: 		buf := &strings.Builder{}
+   256: 		markupRd, markupWr := io.Pipe()
+   257: 		defer markupWr.Close()
+   258: 		done := make(chan struct{})
+   259: 		go func() {
+   260: 			escaped, _ = charset.EscapeControlReader(markupRd, buf, ctx.Locale, charset.EscapeOptionsForView())
+>> 261: 			output = template.HTML(buf.String())
+   262: 			buf.Reset()
+   263: 			close(done)
+   264: 		}()
+   265: 
+   266: 		err = markdown.Render(rctx, bytes.NewReader(data), markupWr)
+   267: 		_ = markupWr.CloseWithError(err)
+   268: 		<-done
+   269: 		return escaped, output, err
+
+##### FINDING 18  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/repo.go  flagged_line=409
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: 
+    @@ -1157,9 +1156,0 @@ func Delete(ctx *context.APIContext) {
+    -	canDelete, err := repo_module.CanUserDelete(ctx, repo, ctx.Doer)
+    -	if err != nil {
+    -		ctx.APIErrorInternal(err)
+    -		return
+    -	} else if !canDelete {
+    -		ctx.APIError(http.StatusForbidden, "Given user is not owner of organization.")
+    -		return
+    -	}
+    -
+code around the flagged line:
+   401: 				return
+   402: 			} else if !canCreate {
+   403: 				ctx.APIError(http.StatusForbidden, "Given user is not allowed to create repository in organization.")
+   404: 				return
+   405: 			}
+   406: 		}
+   407: 	}
+   408: 
+>> 409: 	repo, err := repo_service.GenerateRepository(ctx, ctx.Doer, ctxUser, ctx.Repo.Repository, opts)
+   410: 	if err != nil {
+   411: 		if repo_model.IsErrRepoAlreadyExist(err) {
+   412: 			ctx.APIError(http.StatusConflict, "The repository with the same name already exists.")
+   413: 		} else if db.IsErrNameReserved(err) ||
+   414: 			db.IsErrNamePatternNotAllowed(err) {
+   415: 			ctx.APIError(http.StatusUnprocessableEntity, err.Error())
+   416: 		} else {
+   417: 			ctx.APIErrorInternal(err)
+
+##### FINDING 19  rule=unsafe-template-type  file=routers/web/repo/blame.go  flagged_line=272
+commit message: enhance(repo): unify diff stats on commit pages, misc diff tweaks (#39134)
+files changed by commit (10): options/locale/locale_en-US.json, routers/web/repo/commit.go, routers/web/repo/compare.go, routers/web/repo/pull.go, templates/repo/commit_page.tmpl, templates/repo/diff/box.tmpl, web_src/css/modules/segment.css, web_src/css/repo.css, web_src/css/review.css, web_src/js/components/DiffFileTree.vue
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   264: 
+   265: 	bufContent := buf.Bytes()
+   266: 	bufContent = charset.ToUTF8(bufContent, charset.ConvertOpts{})
+   267: 	highlighted, _, lexerDisplayName := highlight.RenderCodeSlowGuess(path.Base(ctx.Repo.TreePath), language, util.UnsafeBytesToString(bufContent))
+   268: 	unsafeLines := highlight.UnsafeSplitHighlightedLines(highlighted)
+   269: 	for i, br := range rows {
+   270: 		var line template.HTML
+   271: 		if i < len(unsafeLines) {
+>> 272: 			line = template.HTML(util.UnsafeBytesToString(unsafeLines[i]))
+   273: 		}
+   274: 		br.EscapeStatus, br.Code = charset.EscapeControlHTML(line, ctx.Locale)
+   275: 		escapeStatus.Combine(br.EscapeStatus)
+   276: 	}
+   277: 
+   278: 	ctx.Data["EscapeStatus"] = escapeStatus
+   279: 	ctx.Data["BlameRows"] = rows
+   280: 	ctx.Data["LexerName"] = lexerDisplayName
+
+##### FINDING 20  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/repo.go  flagged_line=548
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: 
+    @@ -1157,9 +1156,0 @@ func Delete(ctx *context.APIContext) {
+    -	canDelete, err := repo_module.CanUserDelete(ctx, repo, ctx.Doer)
+    -	if err != nil {
+    -		ctx.APIErrorInternal(err)
+    -		return
+    -	} else if !canDelete {
+    -		ctx.APIError(http.StatusForbidden, "Given user is not owner of organization.")
+    -		return
+    -	}
+    -
+code around the flagged line:
+   540: 	//   format: int64
+   541: 	//   required: true
+   542: 	// responses:
+   543: 	//   "200":
+   544: 	//     "$ref": "#/responses/Repository"
+   545: 	//   "404":
+   546: 	//     "$ref": "#/responses/notFound"
+   547: 
+>> 548: 	repo, err := repo_model.GetRepositoryByID(ctx, ctx.PathParamInt64("id"))
+   549: 	if err != nil {
+   550: 		if repo_model.IsErrRepoNotExist(err) {
+   551: 			ctx.APIErrorNotFound()
+   552: 		} else {
+   553: 			ctx.APIErrorInternal(err)
+   554: 		}
+   555: 		return
+   556: 	}
+
+##### FINDING 21  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/repo.go  flagged_line=240
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   232: 	}
+   233: 
+   234: 	// If the readme template does not exist, a 400 will be returned.
+   235: 	if opt.AutoInit && len(opt.Readme) > 0 && !slices.Contains(repo_module.Readmes, opt.Readme) {
+   236: 		ctx.APIError(http.StatusBadRequest, fmt.Sprintf("readme template does not exist, available templates: %v", repo_module.Readmes))
+   237: 		return
+   238: 	}
+   239: 
+>> 240: 	repo, err := repo_service.CreateRepository(ctx, ctx.Doer, owner, repo_service.CreateRepoOptions{
+   241: 		Name:             opt.Name,
+   242: 		Description:      opt.Description,
+   243: 		IssueLabels:      opt.IssueLabels,
+   244: 		Gitignores:       opt.Gitignores,
+   245: 		License:          opt.License,
+   246: 		Readme:           opt.Readme,
+   247: 		IsPrivate:        opt.Private || setting.Repository.ForcePrivate,
+   248: 		AutoInit:         opt.AutoInit,
+
+##### FINDING 22  rule=unsafe-template-type  file=modules/templates/util_dict.go  flagged_line=121
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   113: 	jsonBytes, err := json.MarshalIndent(m, "", "  ")
+   114: 	if err != nil {
+   115: 		dumpStr = fmt.Sprintf("dumpVar: unable to marshal %T: %v", v, err)
+   116: 	} else if ok {
+   117: 		dumpStr = fmt.Sprintf("dumpVar: %T\n%s", v, string(jsonBytes))
+   118: 	} else {
+   119: 		dumpStr = fmt.Sprintf("dumpVar: unmarshalable %T\n%s", v, string(jsonBytes))
+   120: 	}
+>> 121: 	return template.HTML("<pre>" + html.EscapeString(dumpStr) + "</pre>")
+   122: }
+
+##### FINDING 23  rule=import-text-template  file=services/context/access_log.go  flagged_line=11
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   3: 
+   4: package context
+   5: 
+   6: import (
+   7: 	"bytes"
+   8: 	"net"
+   9: 	"net/http"
+   10: 	"strings"
+>> 11: 	"text/template"
+   12: 	"time"
+   13: 	"unicode"
+   14: 
+   15: 	user_model "gitea.dev/models/user"
+   16: 	"gitea.dev/modules/log"
+   17: 	"gitea.dev/modules/setting"
+   18: 	"gitea.dev/modules/web/middleware"
+   19: )
+
+##### FINDING 24  rule=import-text-template  file=modules/setting/mailer.go  flagged_line=11
+commit message: fix: charset lookup (#39187)
+files changed by commit (6): custom/conf/app.example.ini, modules/charset/charset.go, modules/charset/charset_test.go, modules/setting/repository.go, modules/setting/setting.go, services/gitdiff/gitdiff.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   3: 
+   4: package setting
+   5: 
+   6: import (
+   7: 	"context"
+   8: 	"net"
+   9: 	"net/mail"
+   10: 	"strings"
+>> 11: 	"text/template"
+   12: 	"time"
+   13: 
+   14: 	"gitea.dev/modules/log"
+   15: 
+   16: 	"github.com/kballard/go-shellquote"
+   17: )
+   18: 
+   19: // Mailer represents mail service.
+
+##### FINDING 25  rule=open-redirect  file=services/context/base.go  flagged_line=168
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   160: 		removeSessionCookieHeader(b.Resp)
+   161: 	}
+   162: 	// In case the request is made by "fetch-action" module, make JS redirect to the new location
+   163: 	// Otherwise, the JS fetch will follow the redirection and read a "login" page, embed it to the current page, which is not expected.
+   164: 	if b.Req.Header.Get("X-Gitea-Fetch-Action") != "" {
+   165: 		b.JSON(http.StatusOK, map[string]any{"redirect": location})
+   166: 		return
+   167: 	}
+>> 168: 	http.Redirect(b.Resp, b.Req, location, code)
+   169: }
+   170: 
+   171: type ServeHeaderOptions = httplib.ServeHeaderOptions
+   172: 
+   173: func (b *Base) SetServeHeaders(opts ServeHeaderOptions) {
+   174: 	httplib.ServeSetHeaders(b.Resp, opts)
+   175: }
+   176: 
+
+##### FINDING 26  rule=formatted-template-string  file=services/context/context_template.go  flagged_line=109
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   101: 
+   102: func (c TemplateContext) ScriptImport(path string, typ ...string) template.HTML {
+   103: 	if len(typ) > 0 {
+   104: 		if typ[0] == "module" {
+   105: 			return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" type="module" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   106: 		}
+   107: 		panic("unsupported script type: " + typ[0])
+   108: 	}
+>> 109: 	return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   110: }
+   111: 
+   112: func (c TemplateContext) CspScriptNonce() (ret string) {
+   113: 	return CspScriptNonce(c.parentContext())
+   114: }
+   115: 
+   116: func WebContentSecurityPolicy(scriptNonce string) string {
+   117: 	if setting.Security.ContentSecurityPolicyGeneral == "unset" {
+
+##### FINDING 27  rule=unsafe-template-type  file=routers/web/repo/view.go  flagged_line=168
+commit message: enhance(repo): unify diff stats on commit pages, misc diff tweaks (#39134)
+files changed by commit (10): options/locale/locale_en-US.json, routers/web/repo/commit.go, routers/web/repo/compare.go, routers/web/repo/pull.go, templates/repo/commit_page.tmpl, templates/repo/diff/box.tmpl, web_src/css/modules/segment.css, web_src/css/repo.css, web_src/css/review.css, web_src/js/components/DiffFileTree.vue
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   160: 	go func() {
+   161: 		sb := &strings.Builder{}
+   162: 		if markup.RendererNeedPostProcess(renderer) {
+   163: 			escaped, _ = charset.EscapeControlReader(markupRd, sb, ctx.Locale, charset.EscapeOptionsForView())
+   164: 		} else {
+   165: 			escaped = &charset.EscapeStatus{}
+   166: 			_, _ = io.Copy(sb, markupRd)
+   167: 		}
+>> 168: 		output = template.HTML(sb.String())
+   169: 		close(done)
+   170: 	}()
+   171: 
+   172: 	err = markup.RenderWithRenderer(renderCtx, renderer, input, markupWr)
+   173: 	_ = markupWr.CloseWithError(err)
+   174: 	<-done
+   175: 	return escaped, output, err
+   176: }
+
+##### FINDING 28  rule=formatted-template-string  file=routers/web/auth/oauth2_provider.go  flagged_line=356
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   348: 
+   349: 	// show authorize page to grant access
+   350: 	ctx.Data["Application"] = app
+   351: 	ctx.Data["RedirectURI"] = form.RedirectURI
+   352: 	ctx.Data["State"] = form.State
+   353: 	ctx.Data["Scope"] = form.Scope
+   354: 	ctx.Data["Nonce"] = form.Nonce
+   355: 	if user != nil {
+>> 356: 		ctx.Data["ApplicationCreatorLinkHTML"] = template.HTML(fmt.Sprintf(`<a href="%s">@%s</a>`, html.EscapeString(user.HomeLink()), html.EscapeString(user.Name)))
+   357: 	} else {
+   358: 		ctx.Data["ApplicationCreatorLinkHTML"] = template.HTML(fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(setting.AppSubURL+"/"), html.EscapeString(setting.AppName)))
+   359: 	}
+   360: 	ctx.Data["ApplicationRedirectDomainHTML"] = template.HTML("<strong>" + html.EscapeString(form.RedirectURI) + "</strong>")
+   361: 	// TODO document SESSION <=> FORM
+   362: 	err = ctx.Session.Set("client_id", app.ClientID)
+   363: 	if err != nil {
+   364: 		handleServerError(ctx, form.State, form.RedirectURI)
+
+##### FINDING 29  rule=import-text-template  file=modules/templates/scopedtmpl/scopedtmpl.go  flagged_line=13
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   5: 
+   6: import (
+   7: 	"fmt"
+   8: 	"html/template"
+   9: 	"io"
+   10: 	"maps"
+   11: 	"reflect"
+   12: 	"sync"
+>> 13: 	texttemplate "text/template"
+   14: 	"text/template/parse"
+   15: 	"unsafe"
+   16: )
+   17: 
+   18: type TemplateExecutor interface {
+   19: 	Execute(wr io.Writer, data any) error
+   20: }
+   21: 
+
+##### FINDING 30  rule=unsafe-template-type  file=routers/web/repo/view_readme.go  flagged_line=220
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: 
+    @@ -223 +223 @@ func prepareToRenderReadmeFile(ctx *context.Context, subfolder string, readmeFil
+    -	if !fInfo.isLFSFile() && ctx.Repo.Repository.CanEnableEditor() {
+    +	if !fInfo.isLFSFile() && ctx.Repo.Repository.CanContentChange() {
+code around the flagged line:
+   212: 
+   213: 	if ctx.Data["RenderAsMarkup"] == nil {
+   214: 		ctx.Data["IsPlainText"] = true
+   215: 		content, err := io.ReadAll(rd)
+   216: 		if err != nil {
+   217: 			log.Error("Read readme content failed: %v", err)
+   218: 		}
+   219: 		contentEscaped := template.HTMLEscapeString(util.UnsafeBytesToString(content))
+>> 220: 		ctx.Data["EscapeStatus"], ctx.Data["FileContent"] = charset.EscapeControlHTML(template.HTML(contentEscaped), ctx.Locale)
+   221: 	}
+   222: 
+   223: 	if !fInfo.isLFSFile() && ctx.Repo.Repository.CanContentChange() {
+   224: 		ctx.Data["CanEditReadmeFile"] = true
+   225: 	}
+   226: }
+
+##### FINDING 31  rule=formatted-template-string  file=routers/web/auth/oauth2_provider.go  flagged_line=358
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   350: 	ctx.Data["Application"] = app
+   351: 	ctx.Data["RedirectURI"] = form.RedirectURI
+   352: 	ctx.Data["State"] = form.State
+   353: 	ctx.Data["Scope"] = form.Scope
+   354: 	ctx.Data["Nonce"] = form.Nonce
+   355: 	if user != nil {
+   356: 		ctx.Data["ApplicationCreatorLinkHTML"] = template.HTML(fmt.Sprintf(`<a href="%s">@%s</a>`, html.EscapeString(user.HomeLink()), html.EscapeString(user.Name)))
+   357: 	} else {
+>> 358: 		ctx.Data["ApplicationCreatorLinkHTML"] = template.HTML(fmt.Sprintf(`<a href="%s">%s</a>`, html.EscapeString(setting.AppSubURL+"/"), html.EscapeString(setting.AppName)))
+   359: 	}
+   360: 	ctx.Data["ApplicationRedirectDomainHTML"] = template.HTML("<strong>" + html.EscapeString(form.RedirectURI) + "</strong>")
+   361: 	// TODO document SESSION <=> FORM
+   362: 	err = ctx.Session.Set("client_id", app.ClientID)
+   363: 	if err != nil {
+   364: 		handleServerError(ctx, form.State, form.RedirectURI)
+   365: 		log.Error(err.Error())
+   366: 		return
+
+##### FINDING 32  rule=invalid-usage-of-modified-variable  file=routers/web/repo/projects.go  flagged_line=280
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   272: 		ctx.Redirect(p.Link(ctx))
+   273: 	} else {
+   274: 		ctx.Redirect(ctx.Repo.RepoLink + "/projects")
+   275: 	}
+   276: }
+   277: 
+   278: // ViewProject renders the project with board view
+   279: func ViewProject(ctx *context.Context) {
+>> 280: 	project, err := project_model.GetProjectByID(ctx, ctx.PathParamInt64("id"))
+   281: 	if err != nil {
+   282: 		if project_model.IsErrProjectNotExist(err) {
+   283: 			ctx.NotFound(nil)
+   284: 		} else {
+   285: 			ctx.ServerError("GetProjectByID", err)
+   286: 		}
+   287: 		return
+   288: 	}
+
+##### FINDING 33  rule=unsafe-template-type  file=modules/public/manifest.go  flagged_line=147
+commit message: chore(frontend): avoid loading CSS twice in vite dev mode (#39160)
+files changed by commit (3): modules/public/manifest.go, modules/public/manifest_test.go, modules/public/vitedev.go
+changes to the flagged file: 
+    @@ -144,0 +145,5 @@ func AssetCSSLinks(jsEntrySrc, devStylesheetSrc string) template.HTML {
+    +	if IsViteDevMode() {
+    +		// data-vite-dev-id makes Vite's HMR client skip injecting a duplicate <style> for this module
+    +		return template.HTML(`<link rel="stylesheet" href="` + html.EscapeString(devAssetURL(devStylesheetSrc)) +
+    +			`" data-vite-dev-id="` + html.EscapeString(viteDevModuleID(devStylesheetSrc)) + `">`)
+    +	}
+    @@ -146 +151 @@ func AssetCSSLinks(jsEntrySrc, devStylesheetSrc string) template.HTML {
+    -	for _, href := range entryStyleURLs(jsEntrySrc, devStylesheetSrc) {
+    +	for _, href := range entryStyleURLs(jsEntrySrc) {
+    @@ -152,4 +157 @@ func AssetCSSLinks(jsEntrySrc, devStylesheetSrc string) template.HTML {
+    -func entryStyleURLs(jsEntrySrc, devStylesheetSrc string) []string {
+    -	if IsViteDevMode() {
+    -		return []string{devAssetURL(devStylesheetSrc)}
+    -	}
+    +func entryStyleURLs(jsEntrySrc string) []string {
+code around the flagged line:
+   139: 	return setting.StaticURLPrefix + "/assets/" + path.Base(srcPath)
+   140: }
+   141: 
+   142: // AssetCSSLinks renders the <link> tags for a JS entry's stylesheets: the entry's CSS plus the CSS
+   143: // of every statically-imported chunk. Dev links devStylesheetSrc and lets the JS module inject the rest.
+   144: func AssetCSSLinks(jsEntrySrc, devStylesheetSrc string) template.HTML {
+   145: 	if IsViteDevMode() {
+   146: 		// data-vite-dev-id makes Vite's HMR client skip injecting a duplicate <style> for this module
+>> 147: 		return template.HTML(`<link rel="stylesheet" href="` + html.EscapeString(devAssetURL(devStylesheetSrc)) +
+   148: 			`" data-vite-dev-id="` + html.EscapeString(viteDevModuleID(devStylesheetSrc)) + `">`)
+   149: 	}
+   150: 	var b strings.Builder
+   151: 	for _, href := range entryStyleURLs(jsEntrySrc) {
+   152: 		b.WriteString(`<link rel="stylesheet" href="` + html.EscapeString(href) + `">`)
+   153: 	}
+   154: 	return template.HTML(b.String())
+   155: }
+
+##### FINDING 34  rule=open-redirect  file=services/context/base.go  flagged_line=168
+commit message: fix(httplib): prevent leaking localhost:3000 in public links (#39217)
+files changed by commit (9): modules/git/url/url_test.go, modules/httplib/url.go, modules/httplib/url_test.go, routers/api/actions/artifacts.go, routers/api/actions/artifactsv4.go, routers/common/middleware.go, services/context/api.go, services/context/base.go, services/context/context.go
+changes to the flagged file: 
+    @@ -221 +221 @@ func NewBaseContext(resp http.ResponseWriter, req *http.Request) *Base {
+    -	b.Req = b.Req.WithContext(b)
+    +	b.Req = httplib.RequestWithContext(b.Req, reqCtx)
+    @@ -224 +223,0 @@ func NewBaseContext(resp http.ResponseWriter, req *http.Request) *Base {
+    -	reqCtx.SetContextValue(httplib.RequestContextKey, b.Req)
+code around the flagged line:
+   160: 		removeSessionCookieHeader(b.Resp)
+   161: 	}
+   162: 	// In case the request is made by "fetch-action" module, make JS redirect to the new location
+   163: 	// Otherwise, the JS fetch will follow the redirection and read a "login" page, embed it to the current page, which is not expected.
+   164: 	if b.Req.Header.Get("X-Gitea-Fetch-Action") != "" {
+   165: 		b.JSON(http.StatusOK, map[string]any{"redirect": location})
+   166: 		return
+   167: 	}
+>> 168: 	http.Redirect(b.Resp, b.Req, location, code)
+   169: }
+   170: 
+   171: type ServeHeaderOptions = httplib.ServeHeaderOptions
+   172: 
+   173: func (b *Base) SetServeHeaders(opts ServeHeaderOptions) {
+   174: 	httplib.ServeSetHeaders(b.Resp, opts)
+   175: }
+   176: 
+
+##### FINDING 35  rule=invalid-usage-of-modified-variable  file=routers/web/org/projects.go  flagged_line=194
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   186: 	case "close":
+   187: 		toClose = true
+   188: 	default:
+   189: 		ctx.JSONRedirect(ctx.ContextUser.HomeLink() + "/-/projects")
+   190: 		return
+   191: 	}
+   192: 	id := ctx.PathParamInt64("id")
+   193: 
+>> 194: 	project, err := project_model.GetProjectByIDAndOwner(ctx, id, ctx.ContextUser.ID)
+   195: 	if err != nil {
+   196: 		ctx.NotFoundOrServerError("GetProjectByID", project_model.IsErrProjectNotExist, err)
+   197: 		return
+   198: 	}
+   199: 
+   200: 	if err := project_model.ChangeProjectStatusByRepoIDAndID(ctx, 0, project.ID, toClose); err != nil {
+   201: 		ctx.NotFoundOrServerError("ChangeProjectStatusByRepoIDAndID", project_model.IsErrProjectNotExist, err)
+   202: 		return
+
+##### FINDING 36  rule=unsafe-template-type  file=routers/web/repo/view_readme.go  flagged_line=220
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   212: 
+   213: 	if ctx.Data["RenderAsMarkup"] == nil {
+   214: 		ctx.Data["IsPlainText"] = true
+   215: 		content, err := io.ReadAll(rd)
+   216: 		if err != nil {
+   217: 			log.Error("Read readme content failed: %v", err)
+   218: 		}
+   219: 		contentEscaped := template.HTMLEscapeString(util.UnsafeBytesToString(content))
+>> 220: 		ctx.Data["EscapeStatus"], ctx.Data["FileContent"] = charset.EscapeControlHTML(template.HTML(contentEscaped), ctx.Locale)
+   221: 	}
+   222: 
+   223: 	if !fInfo.isLFSFile() && ctx.Repo.Repository.CanEnableEditor() {
+   224: 		ctx.Data["CanEditReadmeFile"] = true
+   225: 	}
+   226: }
+
+##### FINDING 37  rule=formatted-template-string  file=services/context/context_template.go  flagged_line=105
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   97: 		return template.URL(s)
+   98: 	}
+   99: 	return template.URL(s + "/" + strings.TrimPrefix(link[0], "/"))
+   100: }
+   101: 
+   102: func (c TemplateContext) ScriptImport(path string, typ ...string) template.HTML {
+   103: 	if len(typ) > 0 {
+   104: 		if typ[0] == "module" {
+>> 105: 			return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" type="module" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   106: 		}
+   107: 		panic("unsupported script type: " + typ[0])
+   108: 	}
+   109: 	return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   110: }
+   111: 
+   112: func (c TemplateContext) CspScriptNonce() (ret string) {
+   113: 	return CspScriptNonce(c.parentContext())
+
+##### FINDING 38  rule=invalid-usage-of-modified-variable  file=routers/api/v1/api.go  flagged_line=172
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: 
+    @@ -429,0 +430,9 @@ func reqOwner() func(ctx *context.APIContext) {
+    +func reqRepoDangerZone() func(ctx *context.APIContext) {
+    +	return func(ctx *context.APIContext) {
+    +		if !access_model.CanDoerManageRepoDangerZone(ctx, ctx.Doer, ctx.Repo.Repository, &ctx.Repo.Permission) {
+    +			ctx.APIError(http.StatusForbidden, "user has no permission to manage the danger zone")
+    +			return
+    +		}
+    +	}
+    +}
+    +
+    @@ -1308 +1317 @@ func Routes() *web.Router {
+    -					Delete(reqToken(), reqOwner(), repo.Delete).
+    +					Delete(reqToken(), reqRepoDangerZone(), repo.Delete).
+    @@ -1312 +1321 @@ func Routes() *web.Router {
+    -					m.Post("", reqOwner(), bind(api.TransferRepoOption{}), repo.Transfer)
+    +					m.Post("", reqRepoDangerZone(), bind(api.TransferRepoOption{}), repo.Transfer)
+code around the flagged line:
+   164: 				}
+   165: 				return
+   166: 			}
+   167: 		}
+   168: 		ctx.Repo.Owner = owner
+   169: 		ctx.ContextUser = owner
+   170: 
+   171: 		// Get repository.
+>> 172: 		repo, err := repo_model.GetRepositoryByName(ctx, owner.ID, repoName)
+   173: 		if err != nil {
+   174: 			if repo_model.IsErrRepoNotExist(err) {
+   175: 				redirectRepoID, err := repo_model.LookupRedirect(ctx, owner.ID, repoName)
+   176: 				if err == nil {
+   177: 					context.RedirectToRepo(ctx.Base, redirectRepoID)
+   178: 				} else if repo_model.IsErrRedirectNotExist(err) {
+   179: 					ctx.APIErrorNotFound()
+   180: 				} else {
+
+##### FINDING 39  rule=unsafe-template-type  file=services/context/context_template.go  flagged_line=99
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   91: // AppFullLink returns a full URL link with AppSubURL for the given app link
+   92: // If no link is given, it returns the current app full URL with sub-path but without trailing slash (that's why it is not named as AppURL)
+   93: func (c TemplateContext) AppFullLink(link ...string) template.URL {
+   94: 	s := httplib.GuessCurrentAppURL(c.parentContext())
+   95: 	s = strings.TrimSuffix(s, "/")
+   96: 	if len(link) == 0 {
+   97: 		return template.URL(s)
+   98: 	}
+>> 99: 	return template.URL(s + "/" + strings.TrimPrefix(link[0], "/"))
+   100: }
+   101: 
+   102: func (c TemplateContext) ScriptImport(path string, typ ...string) template.HTML {
+   103: 	if len(typ) > 0 {
+   104: 		if typ[0] == "module" {
+   105: 			return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" type="module" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   106: 		}
+   107: 		panic("unsupported script type: " + typ[0])
+
+##### FINDING 40  rule=unsafe-template-type  file=routers/web/repo/view.go  flagged_line=168
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   160: 	go func() {
+   161: 		sb := &strings.Builder{}
+   162: 		if markup.RendererNeedPostProcess(renderer) {
+   163: 			escaped, _ = charset.EscapeControlReader(markupRd, sb, ctx.Locale, charset.EscapeOptionsForView())
+   164: 		} else {
+   165: 			escaped = &charset.EscapeStatus{}
+   166: 			_, _ = io.Copy(sb, markupRd)
+   167: 		}
+>> 168: 		output = template.HTML(sb.String())
+   169: 		close(done)
+   170: 	}()
+   171: 
+   172: 	err = markup.RenderWithRenderer(renderCtx, renderer, input, markupWr)
+   173: 	_ = markupWr.CloseWithError(err)
+   174: 	<-done
+   175: 	return escaped, output, err
+   176: }
+
+##### FINDING 41  rule=invalid-usage-of-modified-variable  file=routers/web/repo/pull.go  flagged_line=86
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: 
+    @@ -1300,5 +1300,4 @@ func PullsNewRedirect(ctx *context.Context) {
+    -	branch := ctx.PathParam("*")
+    -	redirectRepo := ctx.Repo.Repository
+    -	repo := ctx.Repo.Repository
+    -	if repo.IsFork {
+    -		if err := repo.GetBaseRepo(ctx); err != nil {
+    +	branchName := ctx.PathParam("*")
+    +	baseRepo, headRepo := ctx.Repo.Repository, ctx.Repo.Repository
+    +	if headRepo.IsFork {
+    +		if err := headRepo.GetBaseRepo(ctx); err != nil {
+    @@ -1308,2 +1307 @@ func PullsNewRedirect(ctx *context.Context) {
+    -		redirectRepo = repo.BaseRepo
+    -		branch = context.CompareHeadRef(repo, branch)
+    +		baseRepo = headRepo.BaseRepo
+    @@ -1311 +1309,4 @@ func PullsNewRedirect(ctx *context.Context) {
+    -	ctx.Redirect(fmt.Sprintf("%s/compare/%s...%s?expand=1", redirectRepo.Link(), util.PathEscapeSegments(redirectRepo.DefaultBranch), util.PathEscapeSegments(branch)))
+    +	ctx.Redirect(fmt.Sprintf("%s/compare/%s...%s?expand=1", baseRepo.Link(),
+    +		util.PathEscapeSegments(baseRepo.DefaultBranch),
+    +		util.PathEscapeSegments(context.CompareHeadRef(baseRepo, headRepo, branchName)),
+    +	))
+code around the flagged line:
+   78: 	".github/PULL_REQUEST_TEMPLATE.yaml",
+   79: 	".github/PULL_REQUEST_TEMPLATE.yml",
+   80: 	".github/pull_request_template.md",
+   81: 	".github/pull_request_template.yaml",
+   82: 	".github/pull_request_template.yml",
+   83: }
+   84: 
+   85: func getRepository(ctx *context.Context, repoID int64) *repo_model.Repository {
+>> 86: 	repo, err := repo_model.GetRepositoryByID(ctx, repoID)
+   87: 	if err != nil {
+   88: 		if repo_model.IsErrRepoNotExist(err) {
+   89: 			ctx.NotFound(nil)
+   90: 		} else {
+   91: 			ctx.ServerError("GetRepositoryByID", err)
+   92: 		}
+   93: 		return nil
+   94: 	}
+
+##### FINDING 42  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/collaborators.go  flagged_line=107
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   99: 	// responses:
+   100: 	//   "204":
+   101: 	//     "$ref": "#/responses/empty"
+   102: 	//   "404":
+   103: 	//     "$ref": "#/responses/notFound"
+   104: 	//   "422":
+   105: 	//     "$ref": "#/responses/validationError"
+   106: 
+>> 107: 	user, err := user_model.GetUserByName(ctx, ctx.PathParam("collaborator"))
+   108: 	if err != nil {
+   109: 		if user_model.IsErrUserNotExist(err) {
+   110: 			ctx.APIError(http.StatusUnprocessableEntity, err.Error())
+   111: 		} else {
+   112: 			ctx.APIErrorInternal(err)
+   113: 		}
+   114: 		return
+   115: 	}
+
+##### FINDING 43  rule=unsafe-template-type  file=routers/web/repo/setting/lfs.go  flagged_line=311
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   303: 			fmt.Fprintf(&output, `<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, line)
+   304: 		}
+   305: 		ctx.Data["FileContent"] = gotemplate.HTML(output.String())
+   306: 
+   307: 		output.Reset()
+   308: 		for i := 0; i < len(lines); i++ {
+   309: 			fmt.Fprintf(&output, `<span id="L%d">%d</span>`, i+1, i+1)
+   310: 		}
+>> 311: 		ctx.Data["LineNums"] = gotemplate.HTML(output.String())
+   312: 
+   313: 	case st.IsVideo():
+   314: 		ctx.Data["IsVideoFile"] = true
+   315: 	case st.IsAudio():
+   316: 		ctx.Data["IsAudioFile"] = true
+   317: 	case st.IsImage() && (setting.UI.SVG.Enabled || !st.IsSvgImage()):
+   318: 		ctx.Data["IsImageFile"] = true
+   319: 	default:
+
+##### FINDING 44  rule=open-redirect  file=services/context/base.go  flagged_line=168
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   160: 		removeSessionCookieHeader(b.Resp)
+   161: 	}
+   162: 	// In case the request is made by "fetch-action" module, make JS redirect to the new location
+   163: 	// Otherwise, the JS fetch will follow the redirection and read a "login" page, embed it to the current page, which is not expected.
+   164: 	if b.Req.Header.Get("X-Gitea-Fetch-Action") != "" {
+   165: 		b.JSON(http.StatusOK, map[string]any{"redirect": location})
+   166: 		return
+   167: 	}
+>> 168: 	http.Redirect(b.Resp, b.Req, location, code)
+   169: }
+   170: 
+   171: type ServeHeaderOptions = httplib.ServeHeaderOptions
+   172: 
+   173: func (b *Base) SetServeHeaders(opts ServeHeaderOptions) {
+   174: 	httplib.ServeSetHeaders(b.Resp, opts)
+   175: }
+   176: 
+
+##### FINDING 45  rule=unsafe-template-type  file=routers/web/user/setting/security/2fa.go  flagged_line=137
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   129: 	}
+   130: 
+   131: 	var imgBytes bytes.Buffer
+   132: 	if err = png.Encode(&imgBytes, img); err != nil {
+   133: 		ctx.ServerError("SettingsTwoFactor: otpKey png encoding failed", err)
+   134: 		return false
+   135: 	}
+   136: 
+>> 137: 	ctx.Data["QrUri"] = template.URL("data:image/png;base64," + base64.StdEncoding.EncodeToString(imgBytes.Bytes()))
+   138: 
+   139: 	if err := ctx.Session.Set("twofaSecret", otpKey.Secret()); err != nil {
+   140: 		ctx.ServerError("SettingsTwoFactor: Failed to set session for twofaSecret", err)
+   141: 		return false
+   142: 	}
+   143: 
+   144: 	if err := ctx.Session.Set("twofaUri", otpKey.String()); err != nil {
+   145: 		ctx.ServerError("SettingsTwoFactor: Failed to set session for twofaUri", err)
+
+##### FINDING 46  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/repo.go  flagged_line=240
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: 
+    @@ -1157,9 +1156,0 @@ func Delete(ctx *context.APIContext) {
+    -	canDelete, err := repo_module.CanUserDelete(ctx, repo, ctx.Doer)
+    -	if err != nil {
+    -		ctx.APIErrorInternal(err)
+    -		return
+    -	} else if !canDelete {
+    -		ctx.APIError(http.StatusForbidden, "Given user is not owner of organization.")
+    -		return
+    -	}
+    -
+code around the flagged line:
+   232: 	}
+   233: 
+   234: 	// If the readme template does not exist, a 400 will be returned.
+   235: 	if opt.AutoInit && len(opt.Readme) > 0 && !slices.Contains(repo_module.Readmes, opt.Readme) {
+   236: 		ctx.APIError(http.StatusBadRequest, fmt.Sprintf("readme template does not exist, available templates: %v", repo_module.Readmes))
+   237: 		return
+   238: 	}
+   239: 
+>> 240: 	repo, err := repo_service.CreateRepository(ctx, ctx.Doer, owner, repo_service.CreateRepoOptions{
+   241: 		Name:             opt.Name,
+   242: 		Description:      opt.Description,
+   243: 		IssueLabels:      opt.IssueLabels,
+   244: 		Gitignores:       opt.Gitignores,
+   245: 		License:          opt.License,
+   246: 		Readme:           opt.Readme,
+   247: 		IsPrivate:        opt.Private || setting.Repository.ForcePrivate,
+   248: 		AutoInit:         opt.AutoInit,
+
+##### FINDING 47  rule=invalid-usage-of-modified-variable  file=routers/api/v1/user/helper.go  flagged_line=15
+commit message: fix(web): populate the reason for "cannot commit to branch" in web editor commit form (#39155)
+files changed by commit (12): models/repo/repo.go, options/locale/locale_en-US.json, routers/api/v1/api.go, routers/web/repo/editor.go, routers/web/repo/repo.go, routers/web/repo/view_file.go, routers/web/repo/view_readme.go, services/context/repo.go, templates/repo/diff/box.tmpl, templates/repo/editor/commit_form.tmpl, templates/repo/view_content.tmpl, templates/repo/view_file.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   7: 	user_model "gitea.dev/models/user"
+   8: 	"gitea.dev/services/context"
+   9: )
+   10: 
+   11: // GetUserByPathParam get user by the path param name
+   12: // it will redirect to the user's new name if the user's name has been changed
+   13: func GetUserByPathParam(ctx *context.APIContext, name string) *user_model.User {
+   14: 	username := ctx.PathParam(name)
+>> 15: 	user, err := user_model.GetUserByName(ctx, username)
+   16: 	if err != nil {
+   17: 		if user_model.IsErrUserNotExist(err) {
+   18: 			if redirectUserID, err2 := user_model.LookupUserRedirect(ctx, username); err2 == nil {
+   19: 				context.RedirectToUser(ctx.Base, ctx.Doer, username, redirectUserID)
+   20: 			} else {
+   21: 				ctx.APIErrorNotFound()
+   22: 			}
+   23: 		} else {
+
+##### FINDING 48  rule=import-text-template  file=modules/templates/page.go  flagged_line=15
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   7: 	"context"
+   8: 	"fmt"
+   9: 	"html/template"
+   10: 	"io"
+   11: 	"net/http"
+   12: 	"slices"
+   13: 	"strings"
+   14: 	"sync"
+>> 15: 	texttemplate "text/template"
+   16: 
+   17: 	"gitea.dev/modules/graceful"
+   18: 	"gitea.dev/modules/log"
+   19: 	"gitea.dev/modules/setting"
+   20: 	"gitea.dev/modules/util"
+   21: )
+   22: 
+   23: type pageRenderer struct {
+
+##### FINDING 49  rule=import-text-template  file=modules/setting/mailer.go  flagged_line=11
+commit message: fix(setting): honor bare -1 for timeout settings (#39181)
+files changed by commit (12): modules/setting/config_provider.go, modules/setting/config_provider_test.go, modules/setting/lfs.go, modules/setting/log.go, modules/setting/mailer.go, modules/setting/picture.go, modules/setting/repository.go, modules/setting/service.go, modules/setting/ssh.go, modules/setting/storage.go, modules/setting/task.go, routers/install/install.go
+changes to the flagged file: 
+    @@ -82 +82 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -			sec.Key("PROTOCOL").MustString("sendmail")
+    +			sec.Key("PROTOCOL").MustString("sendmail") // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -98,2 +98,2 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -		sec.Key("SMTP_ADDR").MustString(addr)
+    -		sec.Key("SMTP_PORT").MustString(port)
+    +		sec.Key("SMTP_ADDR").MustString(addr) // FIXME: INI-MUST-SIDE-EFFECT
+    +		sec.Key("SMTP_PORT").MustString(port) // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -105 +105 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -			sec.Key("PROTOCOL").MustString("smtps")
+    +			sec.Key("PROTOCOL").MustString("smtps") // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -107 +107 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -			sec.Key("PROTOCOL").MustString("smtp+starttls")
+    +			sec.Key("PROTOCOL").MustString("smtp+starttls") // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -113 +113 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -		sec.Key("ENABLE_HELO").MustBool(!sec.Key("DISABLE_HELO").MustBool())
+    +		sec.Key("ENABLE_HELO").MustBool(!sec.Key("DISABLE_HELO").MustBool()) // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -118 +118 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -		sec.Key("FORCE_TRUST_SERVER_CERT").MustBool(sec.Key("SKIP_VERIFY").MustBool())
+    +		sec.Key("FORCE_TRUST_SERVER_CERT").MustBool(sec.Key("SKIP_VERIFY").MustBool()) // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -123 +123 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -		sec.Key("USE_CLIENT_CERT").MustBool(sec.Key("USE_CERTIFICATE").MustBool())
+    +		sec.Key("USE_CLIENT_CERT").MustBool(sec.Key("USE_CERTIFICATE").MustBool()) // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -138 +138 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -		sec.Key("SEND_AS_PLAIN_TEXT").MustBool(!sec.Key("ENABLE_HTML_ALTERNATIVE").MustBool(false))
+    +		sec.Key("SEND_AS_PLAIN_TEXT").MustBool(!sec.Key("ENABLE_HTML_ALTERNATIVE").MustBool(false)) // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -147 +147 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+    -	sec.Key("NAME").MustString(AppName)
+    +	sec.Key("NAME").MustString(AppName) // FIXME: INI-MUST-SIDE-EFFECT
+    @@ -149,7 +149,7 @@ func loadMailerFrom(rootCfg ConfigProvider) {
+code around the flagged line:
+   3: 
+   4: package setting
+   5: 
+   6: import (
+   7: 	"context"
+   8: 	"net"
+   9: 	"net/mail"
+   10: 	"strings"
+>> 11: 	"text/template"
+   12: 	"time"
+   13: 
+   14: 	"gitea.dev/modules/log"
+   15: 
+   16: 	"github.com/kballard/go-shellquote"
+   17: )
+   18: 
+   19: // Mailer represents mail service.
+
+##### FINDING 50  rule=unsafe-template-type  file=routers/web/repo/pull_merge_box.go  flagged_line=31
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   23: }
+   24: 
+   25: type pullInfoSection struct {
+   26: 	InfoItems []*pullMergeBoxInfoItem
+   27: }
+   28: 
+   29: func escapeStringSliceToHTML(s []string) (ret []template.HTML) {
+   30: 	for _, v := range s {
+>> 31: 		ret = append(ret, template.HTML(template.HTMLEscapeString(v)))
+   32: 	}
+   33: 	return ret
+   34: }
+   35: 
+   36: func (c *pullMergeBoxInfoItemCollection) AddInfoItem(svg, info template.HTML, optItems ...[]template.HTML) {
+   37: 	c.items = append(c.items, &pullMergeBoxInfoItem{
+   38: 		SvgIconHTML: svg,
+   39: 		InfoHTML:    info,
+
+##### FINDING 51  rule=math-random-used  file=modules/util/util.go  flagged_line=13
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   5: 
+   6: import (
+   7: 	"bytes"
+   8: 	"crypto/rand"
+   9: 	"crypto/subtle"
+   10: 	"encoding/hex"
+   11: 	"fmt"
+   12: 	"math/big"
+>> 13: 	rand2 "math/rand/v2"
+   14: 	"slices"
+   15: 	"strconv"
+   16: 	"sync"
+   17: 
+   18: 	"gitea.dev/modules/container"
+   19: 
+   20: 	"golang.org/x/text/cases"
+   21: 	"golang.org/x/text/language"
+
+##### FINDING 52  rule=import-text-template  file=services/context/access_log.go  flagged_line=11
+commit message: chore: repo compare link (#39088)
+files changed by commit (4): custom/conf/app.example.ini, routers/web/repo/pull.go, services/context/repo.go, services/context/repo_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   3: 
+   4: package context
+   5: 
+   6: import (
+   7: 	"bytes"
+   8: 	"net"
+   9: 	"net/http"
+   10: 	"strings"
+>> 11: 	"text/template"
+   12: 	"time"
+   13: 	"unicode"
+   14: 
+   15: 	user_model "gitea.dev/models/user"
+   16: 	"gitea.dev/modules/log"
+   17: 	"gitea.dev/modules/setting"
+   18: 	"gitea.dev/modules/web/middleware"
+   19: )
+
+##### FINDING 53  rule=unsafe-template-type  file=services/context/context_template.go  flagged_line=99
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   91: // AppFullLink returns a full URL link with AppSubURL for the given app link
+   92: // If no link is given, it returns the current app full URL with sub-path but without trailing slash (that's why it is not named as AppURL)
+   93: func (c TemplateContext) AppFullLink(link ...string) template.URL {
+   94: 	s := httplib.GuessCurrentAppURL(c.parentContext())
+   95: 	s = strings.TrimSuffix(s, "/")
+   96: 	if len(link) == 0 {
+   97: 		return template.URL(s)
+   98: 	}
+>> 99: 	return template.URL(s + "/" + strings.TrimPrefix(link[0], "/"))
+   100: }
+   101: 
+   102: func (c TemplateContext) ScriptImport(path string, typ ...string) template.HTML {
+   103: 	if len(typ) > 0 {
+   104: 		if typ[0] == "module" {
+   105: 			return template.HTML(`<script nonce="` + c.CspScriptNonce() + `" type="module" src="` + html.EscapeString(public.AssetURI(path)) + `"></script>`)
+   106: 		}
+   107: 		panic("unsupported script type: " + typ[0])
+
+##### FINDING 54  rule=unescaped-data-in-url  file=routers/web/user/setting/security/2fa.go  flagged_line=137
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   129: 	}
+   130: 
+   131: 	var imgBytes bytes.Buffer
+   132: 	if err = png.Encode(&imgBytes, img); err != nil {
+   133: 		ctx.ServerError("SettingsTwoFactor: otpKey png encoding failed", err)
+   134: 		return false
+   135: 	}
+   136: 
+>> 137: 	ctx.Data["QrUri"] = template.URL("data:image/png;base64," + base64.StdEncoding.EncodeToString(imgBytes.Bytes()))
+   138: 
+   139: 	if err := ctx.Session.Set("twofaSecret", otpKey.Secret()); err != nil {
+   140: 		ctx.ServerError("SettingsTwoFactor: Failed to set session for twofaSecret", err)
+   141: 		return false
+   142: 	}
+   143: 
+   144: 	if err := ctx.Session.Set("twofaUri", otpKey.String()); err != nil {
+   145: 		ctx.ServerError("SettingsTwoFactor: Failed to set session for twofaUri", err)
+
+##### FINDING 55  rule=open-redirect  file=services/context/base.go  flagged_line=168
+commit message: enhance: Improve validation errors for secrets/variables (#39221)
+files changed by commit (19): modules/util/error.go, modules/util/error_test.go, options/locale/locale_en-US.json, routers/api/v1/org/action.go, routers/api/v1/repo/action.go, routers/api/v1/user/action.go, routers/web/admin/config.go, routers/web/org/members.go, routers/web/repo/pull.go, routers/web/repo/release.go, routers/web/shared/actions/variables.go, routers/web/shared/secrets/secrets.go, services/context/api.go, services/context/context.go, services/context/upload/upload.go, services/secrets/validation.go, services/secrets/validation_test.go, templates/shared/secrets/add_list.tmpl, templates/shared/variables/variable_list.tmpl
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   160: 		removeSessionCookieHeader(b.Resp)
+   161: 	}
+   162: 	// In case the request is made by "fetch-action" module, make JS redirect to the new location
+   163: 	// Otherwise, the JS fetch will follow the redirection and read a "login" page, embed it to the current page, which is not expected.
+   164: 	if b.Req.Header.Get("X-Gitea-Fetch-Action") != "" {
+   165: 		b.JSON(http.StatusOK, map[string]any{"redirect": location})
+   166: 		return
+   167: 	}
+>> 168: 	http.Redirect(b.Resp, b.Req, location, code)
+   169: }
+   170: 
+   171: type ServeHeaderOptions = httplib.ServeHeaderOptions
+   172: 
+   173: func (b *Base) SetServeHeaders(opts ServeHeaderOptions) {
+   174: 	httplib.ServeSetHeaders(b.Resp, opts)
+   175: }
+   176: 
+
+##### FINDING 56  rule=import-text-template  file=modules/setting/mailer.go  flagged_line=11
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   3: 
+   4: package setting
+   5: 
+   6: import (
+   7: 	"context"
+   8: 	"net"
+   9: 	"net/mail"
+   10: 	"strings"
+>> 11: 	"text/template"
+   12: 	"time"
+   13: 
+   14: 	"gitea.dev/modules/log"
+   15: 
+   16: 	"github.com/kballard/go-shellquote"
+   17: )
+   18: 
+   19: // Mailer represents mail service.
+
+##### FINDING 57  rule=unsafe-template-type  file=routers/web/repo/setting/lfs.go  flagged_line=305
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   297: 		}
+   298: 		for index, line := range lines {
+   299: 			line = gotemplate.HTMLEscapeString(line)
+   300: 			if index != len(lines)-1 {
+   301: 				line += "\n"
+   302: 			}
+   303: 			fmt.Fprintf(&output, `<li class="L%d" rel="L%d">%s</li>`, index+1, index+1, line)
+   304: 		}
+>> 305: 		ctx.Data["FileContent"] = gotemplate.HTML(output.String())
+   306: 
+   307: 		output.Reset()
+   308: 		for i := 0; i < len(lines); i++ {
+   309: 			fmt.Fprintf(&output, `<span id="L%d">%d</span>`, i+1, i+1)
+   310: 		}
+   311: 		ctx.Data["LineNums"] = gotemplate.HTML(output.String())
+   312: 
+   313: 	case st.IsVideo():
+
+##### FINDING 58  rule=no-direct-write-to-responsewriter  file=routers/web/misc/misc.go  flagged_line=53
+commit message: chore: apply golangci "forbidigo" to all packages (#39151)
+files changed by commit (17): .golangci.yml, cmd/actions.go, cmd/admin_user_change_password.go, cmd/admin_user_create.go, cmd/admin_user_disable_2fa.go, cmd/admin_user_generate_access_token.go, cmd/admin_user_must_change_password.go, cmd/doctor.go, cmd/doctor_convert.go, cmd/embedded.go, cmd/generate.go, cmd/helper.go, cmd/mailer.go, cmd/serv.go, routers/web/misc/misc.go, services/agit/agit.go, tests/integration/ssh_key_test.go
+changes to the flagged file: 
+    @@ -19,0 +20 @@ import (
+    +	"gitea.dev/services/agit"
+    @@ -52 +53 @@ func SSHInfo(rw http.ResponseWriter, req *http.Request) {
+    -	_, err := rw.Write([]byte(`{"type":"agit","version":1}`))
+    +	_, err := rw.Write([]byte(agit.SshInfoJson))
+code around the flagged line:
+   45: }
+   46: 
+   47: func SSHInfo(rw http.ResponseWriter, req *http.Request) {
+   48: 	if !git.DefaultFeatures().SupportProcReceive {
+   49: 		rw.WriteHeader(http.StatusNotFound)
+   50: 		return
+   51: 	}
+   52: 	rw.Header().Set("content-type", "text/json;charset=UTF-8")
+>> 53: 	_, err := rw.Write([]byte(agit.SshInfoJson))
+   54: 	if err != nil {
+   55: 		log.Error("fail to write result: err: %v", err)
+   56: 		rw.WriteHeader(http.StatusInternalServerError)
+   57: 		return
+   58: 	}
+   59: 	rw.WriteHeader(http.StatusOK)
+   60: }
+   61: 
+
+##### FINDING 59  rule=unsafe-template-type  file=modules/templates/helper.go  flagged_line=163
+commit message: refactor: drop two unmaintained dependencies, rename the byte size helpers (#39083)
+files changed by commit (33): assets/go-licenses.json, go.mod, go.sum, modelmigration/v1_16/v210.go, modelmigration/v1_16/v210_test.go, models/repo/repo.go, modules/base/tool.go, modules/base/tool_test.go, modules/indexer/internal/bleve/indexer.go, modules/indexer/internal/bleve/util.go, modules/indexer/internal/bleve/util_test.go, modules/setting/packages.go, modules/templates/helper.go, modules/templates/mail.go, modules/util/bytesize.go, modules/util/bytesize_test.go, routers/web/admin/admin.go, services/doctor/storage.go, templates/admin/packages/list.tmpl, templates/admin/repo/list.tmpl, templates/mail/repo/release.tmpl, templates/package/content/container.tmpl, templates/package/shared/cleanup_rules/preview.tmpl, templates/package/shared/view.tmpl, templates/repo/diff/image_diff.tmpl ...
+changes to the flagged file: 
+    @@ -59,4 +59,4 @@ func newFuncMapWebPage() template.FuncMap {
+    -		"ShortSha": base.ShortSha,
+    -		"FileSize": base.FileSize,
+    -		"CountFmt": countFmt,
+    -		"Sec2Hour": util.SecToHours,
+    +		"ShortSha":       base.ShortSha,
+    +		"FormatByteSize": util.FormatByteSize,
+    +		"CountFmt":       countFmt,
+    +		"Sec2Hour":       util.SecToHours,
+code around the flagged line:
+   155: 		return htmlutil.HTMLFormat(template.HTML(v), args...)
+   156: 	case template.HTML:
+   157: 		return htmlutil.HTMLFormat(v, args...)
+   158: 	}
+   159: 	panic(fmt.Sprintf("unexpected type %T", s))
+   160: }
+   161: 
+   162: func queryEscape(s string) template.URL {
+>> 163: 	return template.URL(url.QueryEscape(s))
+   164: }
+   165: 
+   166: // iif is an "inline-if", similar util.Iif[T] but templates need the non-generic version,
+   167: // and it could be simply used as "{{iif expr trueVal}}" (omit the falseVal).
+   168: func iif(condition any, vals ...any) any {
+   169: 	if isTemplateTruthy(condition) {
+   170: 		return vals[0]
+   171: 	} else if len(vals) > 1 {
+
+##### FINDING 60  rule=invalid-usage-of-modified-variable  file=routers/api/v1/repo/issue_reaction.go  flagged_line=430
+commit message: fix(repo): centralize repository-scoped authorization (#39063)
+files changed by commit (27): models/organization/org.go, models/organization/org_user.go, models/organization/team.go, models/organization/team_list.go, models/perm/access/access.go, models/perm/access/repo_permission.go, models/user/user.go, modules/repository/delete.go, routers/api/v1/api.go, routers/api/v1/org/team.go, routers/api/v1/repo/repo.go, routers/api/v1/repo/teams.go, routers/web/repo/issue_view.go, routers/web/repo/setting/collaboration.go, routers/web/repo/setting/setting.go, routers/web/repo/setting/settings_test.go, routers/web/web.go, services/context/org.go, services/issue/comments.go, services/issue/content.go, services/issue/issue.go, services/packages/package_update.go, services/packages/packages_test.go, services/pull/check.go, services/repository/create.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   422: 
+   423: 	if issue.IsLocked && !ctx.Repo.Permission.CanWriteIssuesOrPulls(issue.IsPull) {
+   424: 		ctx.APIError(http.StatusForbidden, "no permission to change reaction")
+   425: 		return
+   426: 	}
+   427: 
+   428: 	if isCreateType {
+   429: 		// PostIssueReaction part
+>> 430: 		reaction, err := issue_service.CreateIssueReaction(ctx, ctx.Doer, issue, form.Reaction)
+   431: 		if err != nil {
+   432: 			if issues_model.IsErrForbiddenIssueReaction(err) || errors.Is(err, user_model.ErrBlockedUser) {
+   433: 				ctx.APIError(http.StatusForbidden, err.Error())
+   434: 			} else if issues_model.IsErrReactionAlreadyExist(err) {
+   435: 				ctx.JSON(http.StatusOK, api.Reaction{
+   436: 					User:     convert.ToUser(ctx, ctx.Doer, ctx.Doer),
+   437: 					Reaction: reaction.Type,
+   438: 					Created:  reaction.CreatedUnix.AsTime(),

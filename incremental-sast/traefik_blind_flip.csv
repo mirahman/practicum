@@ -1,0 +1,43 @@
+id,commit,file,line,rule,code,connected? (y/n)
+1,46ac3ac6ce,pkg/server/service/loadbalancer/sticky.go,139,cookie-missing-secure,cookie := &http.Cookie{,y
+2,0331801c72,pkg/server/service/loadbalancer/wrr/wrr.go,191,cookie-missing-httponly,"cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: ""/"", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}",n
+3,0331801c72,pkg/server/router/tcp/router.go,413,missing-ssl-minversion,"server := tls.Server(readOnlyConn{r: br}, &tls.Config{",n
+4,ff39c47d74,pkg/server/cookie/cookie.go,26,use-of-sha1,hash := sha1.New(),n
+5,0331801c72,pkg/server/server_entrypoint_tcp_http3.go,61,missing-ssl-minversion,"TLSConfig:      &tls.Config{GetConfigForClient: h3.getTLSConfigForClient},",n
+6,46ac3ac6ce,pkg/server/service/loadbalancer/sticky.go,139,cookie-missing-httponly,cookie := &http.Cookie{,y
+7,9ee201299d,pkg/provider/acme/provider.go,449,missing-ssl-minversion,return &tls.Config{,n
+8,c827fa1ed1,pkg/provider/acme/challenge_http.go,91,no-direct-write-to-responsewriter,"_, err = rw.Write(tokenValue)",n
+9,0331801c72,pkg/server/service/roundtripper.go,139,missing-ssl-minversion,transport.TLSClientConfig = &tls.Config{,n
+10,43bc3aff61,pkg/server/service/loadbalancer/sticky.go,137,cookie-missing-httponly,cookie := &http.Cookie{,y
+11,ff39c47d74,pkg/server/service/udp/service.go,7,math-random-used,"""math/rand""",n
+12,c827fa1ed1,pkg/provider/acme/challenge_http.go,91,no-direct-write-to-responsewriter-taint,"_, err = rw.Write(tokenValue)",n
+13,e028ffb86d,pkg/server/service/udp/service.go,7,math-random-used,"""math/rand""",y
+14,ff39c47d74,pkg/server/service/roundtripper.go,139,missing-ssl-minversion,transport.TLSClientConfig = &tls.Config{,n
+15,e028ffb86d,pkg/server/service/tcp/service.go,7,math-random-used,"""math/rand""",y
+16,ff39c47d74,pkg/server/service/loadbalancer/wrr/wrr.go,191,cookie-missing-httponly,"cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: ""/"", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}",n
+17,ff39c47d74,pkg/server/router/tcp/router.go,413,missing-ssl-minversion,"server := tls.Server(readOnlyConn{r: br}, &tls.Config{",n
+18,0c90dbee1a,pkg/provider/acme/provider.go,421,missing-ssl-minversion,return &tls.Config{,n
+19,9ee201299d,pkg/provider/acme/challenge_http.go,91,no-direct-write-to-responsewriter-taint,"_, err = rw.Write(tokenValue)",n
+20,46ac3ac6ce,pkg/server/service/loadbalancer/p2c/p2c.go,6,math-random-used,"""math/rand""",n
+21,0331801c72,pkg/server/service/udp/service.go,7,math-random-used,"""math/rand""",n
+22,0c90dbee1a,pkg/provider/acme/challenge_http.go,91,no-direct-write-to-responsewriter,"_, err = rw.Write(tokenValue)",n
+23,591a5e9a36,pkg/provider/kubernetes/crd/kubernetes.go,1306,use-of-sha1,hash := sha1.New(),n
+24,ff39c47d74,pkg/server/service/service.go,7,math-random-used,"""math/rand""",n
+25,ff39c47d74,pkg/server/service/loadbalancer/wrr/wrr.go,191,cookie-missing-secure,"cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: ""/"", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}",n
+26,0331801c72,pkg/server/service/service.go,7,math-random-used,"""math/rand""",n
+27,0c90dbee1a,pkg/provider/acme/challenge_http.go,91,no-direct-write-to-responsewriter-taint,"_, err = rw.Write(tokenValue)",n
+28,ff39c47d74,pkg/server/service/tcp/service.go,7,math-random-used,"""math/rand""",n
+29,0331801c72,pkg/server/service/tcp/service.go,7,math-random-used,"""math/rand""",n
+30,0331801c72,pkg/server/service/proxy.go,144,no-direct-write-to-responsewriter,"_, werr := w.Write([]byte(statusText(statusCode)))",n
+31,0c90dbee1a,pkg/provider/acme/provider.go,445,missing-ssl-minversion,return &tls.Config{,y
+32,9ee201299d,pkg/provider/acme/provider.go,425,missing-ssl-minversion,return &tls.Config{,n
+33,0331801c72,pkg/server/cookie/cookie.go,26,use-of-sha1,hash := sha1.New(),n
+34,0331801c72,pkg/middlewares/auth/forward.go,191,no-direct-write-to-responsewriter,"if _, err = rw.Write(body); err != nil {",y
+35,43bc3aff61,pkg/server/service/loadbalancer/p2c/p2c.go,6,math-random-used,"""math/rand""",n
+36,43bc3aff61,pkg/server/service/loadbalancer/sticky.go,137,cookie-missing-secure,cookie := &http.Cookie{,y
+37,ff39c47d74,pkg/server/server_entrypoint_tcp_http3.go,62,missing-ssl-minversion,"TLSConfig:      &tls.Config{GetConfigForClient: h3.getTLSConfigForClient},",y
+38,ff39c47d74,pkg/server/service/proxy.go,146,no-direct-write-to-responsewriter,"_, werr := w.Write([]byte(statusText(statusCode)))",n
+39,55bbda4f65,pkg/proxy/httputil/proxy.go,209,no-direct-write-to-responsewriter,"if _, werr := w.Write([]byte(statusText(statusCode))); werr != nil {",n
+40,0331801c72,pkg/server/service/loadbalancer/wrr/wrr.go,191,cookie-missing-secure,"cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: ""/"", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}",n
+41,0331801c72,pkg/middlewares/auth/forward.go,191,no-direct-write-to-responsewriter-taint,"if _, err = rw.Write(body); err != nil {",y
+42,9ee201299d,pkg/provider/acme/challenge_http.go,91,no-direct-write-to-responsewriter,"_, err = rw.Write(tokenValue)",n

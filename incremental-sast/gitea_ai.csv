@@ -1,0 +1,61 @@
+id,label,reason
+1,n,cmd/web.go unchanged; commit is process group reaping; flagged code is an HTTP redirector
+2,n,oauth2 page unchanged; commit is repository authorization; flagged code builds a link
+3,n,lfs.go unchanged; commit is diff stats display
+4,n,githttp.go unchanged; commit is the repo compare link
+5,n,projects.go unchanged; commit is secrets and variables validation
+6,y,BORDERLINE: repoAssignmentPrepareRepo is part of repository-scoped authorization which this commit centralizes; file itself unchanged
+7,n,lfs.go unchanged; commit is the repo compare link
+8,n,util_render.go unchanged; commit drops dependencies and renames byte size helpers
+9,n,issue_reaction.go unchanged; commit is secrets and variables validation
+10,n,lfs.go unchanged; commit is diff stats display
+11,n,ssh.go unchanged; commit is dependency and byte size cleanup; flagged line is an import
+12,n,projects.go unchanged; commit is diff stats display
+13,n,view.go unchanged; commit is secrets and variables validation
+14,n,lfs.go unchanged; commit is secrets and variables validation
+15,n,BORDERLINE: AppFullLink unchanged; commit is the repo compare link but no visible call
+16,n,context_template.go unchanged; commit is repository authorization
+17,n,wiki.go unchanged; commit is the web editor commit form
+18,n,BORDERLINE: same file changed in Delete but flagged line is in a different function
+19,n,blame.go unchanged; commit is diff stats display
+20,n,BORDERLINE: same file changed in Delete but flagged line is in a different function
+21,n,repo.go unchanged by this commit; commit is secrets and variables validation
+22,n,util_dict.go unchanged; commit is dependency and byte size cleanup
+23,n,access_log.go unchanged; commit is the web editor commit form; flagged line is an import
+24,n,mailer.go unchanged; commit is charset lookup; flagged line is an import
+25,n,base.go unchanged by this commit; commit is the repo compare link
+26,n,context_template.go unchanged; commit is the web editor commit form
+27,n,view.go unchanged; commit is diff stats display
+28,n,oauth2 page unchanged; commit is repository authorization; flagged code builds a link
+29,n,scopedtmpl.go unchanged; commit is dependency and byte size cleanup; flagged line is an import
+30,y,BORDERLINE: flagged line is in prepareToRenderReadmeFile which this commit changes (line 223) but the changed condition is independent of the flagged line
+31,n,oauth2 page unchanged; commit is repository authorization; flagged code builds a link
+32,n,projects.go unchanged; commit is repository authorization but flagged code is a project lookup
+33,y,flagged line is inside AssetCSSLinks and is one of the lines this commit adds
+34,y,BORDERLINE: flagged Redirect uses b.Req which NewBaseContext (changed in this commit) now builds differently
+35,n,projects.go unchanged; commit is repository authorization but flagged code is a project lookup
+36,n,view_readme.go unchanged by this commit; commit is repository authorization
+37,n,context_template.go unchanged; commit is the repo compare link
+38,y,BORDERLINE: flagged code is the API repository assignment step that this commit's authorization change builds on; same file changed elsewhere
+39,n,context_template.go unchanged; commit is secrets and variables validation
+40,n,view.go unchanged; commit is the web editor commit form
+41,n,BORDERLINE: same file changed in PullsNewRedirect but flagged getRepository is a different function
+42,n,collaborators.go unchanged; commit is repository authorization but flagged code is a user lookup
+43,n,lfs.go unchanged; commit is the web editor commit form
+44,n,base.go unchanged; commit is the web editor commit form
+45,n,2fa.go unchanged; commit is repository authorization but flagged code builds a QR data URI
+46,n,BORDERLINE: file changed in Delete (authorization check removed) but flagged CreateRepository is a different function
+47,n,helper.go unchanged; commit is the web editor commit form
+48,n,page.go unchanged; flagged line is an import
+49,n,mailer.go only gets comments in this commit; flagged line is an import
+50,n,pull_merge_box.go unchanged; commit is repository authorization
+51,n,util.go unchanged; flagged line is an import
+52,n,access_log.go unchanged; flagged line is an import
+53,n,context_template.go unchanged; commit is repository authorization
+54,n,2fa.go unchanged; flagged code builds a QR data URI
+55,n,base.go unchanged; commit is secrets validation messages
+56,n,mailer.go flagged line is an import; unrelated to byte size cleanup
+57,n,lfs.go unchanged; commit is repository authorization
+58,y,flagged rw.Write line is the exact line this commit changes
+59,n,BORDERLINE: helper.go changed in the func map but flagged queryEscape is a different function
+60,n,issue_reaction.go unchanged; commit is repository authorization but flagged code is reaction creation

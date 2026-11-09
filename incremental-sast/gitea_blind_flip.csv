@@ -1,0 +1,61 @@
+id,commit,file,line,rule,code,connected? (y/n)
+1,eea03676d3,cmd/web.go,89,open-redirect,"http.Redirect(w, r, target, http.StatusTemporaryRedirect)",n
+2,e21c37703e,routers/web/auth/oauth2_provider.go,356,unsafe-template-type,"ctx.Data[""ApplicationCreatorLinkHTML""] = template.HTML(fmt.Sprintf(`<a href=""%s"">@%s</a>`, html.EscapeString(user.HomeLink()), html.EscapeString(user.Name)))",n
+3,27570ea685,routers/web/repo/setting/lfs.go,311,unsafe-template-type,"ctx.Data[""LineNums""] = gotemplate.HTML(output.String())",n
+4,7668e7c00d,routers/web/repo/githttp.go,108,invalid-usage-of-modified-variable,"repo, err := repo_model.GetRepositoryByName(ctx, owner.ID, repoName)",n
+5,2d3ad4a530,routers/web/org/projects.go,193,invalid-usage-of-modified-variable,"project, err := project_model.GetProjectByIDAndOwner(ctx, id, ctx.ContextUser.ID)",n
+6,e21c37703e,services/context/repo.go,571,invalid-usage-of-modified-variable,"repo, err := repo_model.GetRepositoryByName(ctx, ctx.Repo.Owner.ID, repoName)",n
+7,7668e7c00d,routers/web/repo/setting/lfs.go,311,unsafe-template-type,"ctx.Data[""LineNums""] = gotemplate.HTML(output.String())",n
+8,66c672d0b7,modules/templates/util_render.go,190,unsafe-template-type,"return template.HTML(fmt.Sprintf(`<img alt="":%s:"" src=""%s/assets/img/emoji/%s.png""></img>`, reaction, setting.StaticURLPrefix, url.PathEscape(reaction)))",n
+9,2d3ad4a530,routers/api/v1/repo/issue_reaction.go,430,invalid-usage-of-modified-variable,"reaction, err := issue_service.CreateIssueReaction(ctx, ctx.Doer, issue, form.Reaction)",n
+10,27570ea685,routers/web/repo/setting/lfs.go,305,unsafe-template-type,"ctx.Data[""FileContent""] = gotemplate.HTML(output.String())",n
+11,66c672d0b7,modules/setting/ssh.go,9,import-text-template,"""text/template""",n
+12,27570ea685,routers/web/repo/projects.go,279,invalid-usage-of-modified-variable,"project, err := project_model.GetProjectByID(ctx, ctx.PathParamInt64(""id""))",n
+13,2d3ad4a530,routers/web/repo/view.go,168,unsafe-template-type,output = template.HTML(sb.String()),n
+14,2d3ad4a530,routers/web/repo/setting/lfs.go,305,unsafe-template-type,"ctx.Data[""FileContent""] = gotemplate.HTML(output.String())",n
+15,7668e7c00d,services/context/context_template.go,97,unsafe-template-type,return template.URL(s),y
+16,e21c37703e,services/context/context_template.go,109,unsafe-template-type,"return template.HTML(`<script nonce=""` + c.CspScriptNonce() + `"" src=""` + html.EscapeString(public.AssetURI(path)) + `""></script>`)",n
+17,e806566b39,routers/web/repo/wiki.go,261,unsafe-template-type,output = template.HTML(buf.String()),n
+18,e21c37703e,routers/api/v1/repo/repo.go,409,invalid-usage-of-modified-variable,"repo, err := repo_service.GenerateRepository(ctx, ctx.Doer, ctxUser, ctx.Repo.Repository, opts)",y
+19,27570ea685,routers/web/repo/blame.go,272,unsafe-template-type,line = template.HTML(util.UnsafeBytesToString(unsafeLines[i])),n
+20,e21c37703e,routers/api/v1/repo/repo.go,548,invalid-usage-of-modified-variable,"repo, err := repo_model.GetRepositoryByID(ctx, ctx.PathParamInt64(""id""))",y
+21,2d3ad4a530,routers/api/v1/repo/repo.go,240,invalid-usage-of-modified-variable,"repo, err := repo_service.CreateRepository(ctx, ctx.Doer, owner, repo_service.CreateRepoOptions{",n
+22,66c672d0b7,modules/templates/util_dict.go,121,unsafe-template-type,"return template.HTML(""<pre>"" + html.EscapeString(dumpStr) + ""</pre>"")",n
+23,e806566b39,services/context/access_log.go,11,import-text-template,"""text/template""",n
+24,be3a6d1647,modules/setting/mailer.go,11,import-text-template,"""text/template""",n
+25,7668e7c00d,services/context/base.go,168,open-redirect,"http.Redirect(b.Resp, b.Req, location, code)",n
+26,e806566b39,services/context/context_template.go,109,formatted-template-string,"return template.HTML(`<script nonce=""` + c.CspScriptNonce() + `"" src=""` + html.EscapeString(public.AssetURI(path)) + `""></script>`)",n
+27,27570ea685,routers/web/repo/view.go,168,unsafe-template-type,output = template.HTML(sb.String()),n
+28,e21c37703e,routers/web/auth/oauth2_provider.go,356,formatted-template-string,"ctx.Data[""ApplicationCreatorLinkHTML""] = template.HTML(fmt.Sprintf(`<a href=""%s"">@%s</a>`, html.EscapeString(user.HomeLink()), html.EscapeString(user.Name)))",n
+29,66c672d0b7,modules/templates/scopedtmpl/scopedtmpl.go,13,import-text-template,"texttemplate ""text/template""",n
+30,e806566b39,routers/web/repo/view_readme.go,220,unsafe-template-type,"ctx.Data[""EscapeStatus""], ctx.Data[""FileContent""] = charset.EscapeControlHTML(template.HTML(contentEscaped), ctx.Locale)",y
+31,e21c37703e,routers/web/auth/oauth2_provider.go,358,formatted-template-string,"ctx.Data[""ApplicationCreatorLinkHTML""] = template.HTML(fmt.Sprintf(`<a href=""%s"">%s</a>`, html.EscapeString(setting.AppSubURL+""/""), html.EscapeString(setting.AppName)))",n
+32,e21c37703e,routers/web/repo/projects.go,280,invalid-usage-of-modified-variable,"project, err := project_model.GetProjectByID(ctx, ctx.PathParamInt64(""id""))",n
+33,1652dfe62a,modules/public/manifest.go,147,unsafe-template-type,"return template.HTML(`<link rel=""stylesheet"" href=""` + html.EscapeString(devAssetURL(devStylesheetSrc)) +",y
+34,bcd913a4e2,services/context/base.go,168,open-redirect,"http.Redirect(b.Resp, b.Req, location, code)",y
+35,e21c37703e,routers/web/org/projects.go,194,invalid-usage-of-modified-variable,"project, err := project_model.GetProjectByIDAndOwner(ctx, id, ctx.ContextUser.ID)",n
+36,e21c37703e,routers/web/repo/view_readme.go,220,unsafe-template-type,"ctx.Data[""EscapeStatus""], ctx.Data[""FileContent""] = charset.EscapeControlHTML(template.HTML(contentEscaped), ctx.Locale)",n
+37,7668e7c00d,services/context/context_template.go,105,formatted-template-string,"return template.HTML(`<script nonce=""` + c.CspScriptNonce() + `"" type=""module"" src=""` + html.EscapeString(public.AssetURI(path)) + `""></script>`)",n
+38,e21c37703e,routers/api/v1/api.go,172,invalid-usage-of-modified-variable,"repo, err := repo_model.GetRepositoryByName(ctx, owner.ID, repoName)",y
+39,2d3ad4a530,services/context/context_template.go,99,unsafe-template-type,"return template.URL(s + ""/"" + strings.TrimPrefix(link[0], ""/""))",n
+40,e806566b39,routers/web/repo/view.go,168,unsafe-template-type,output = template.HTML(sb.String()),n
+41,7668e7c00d,routers/web/repo/pull.go,86,invalid-usage-of-modified-variable,"repo, err := repo_model.GetRepositoryByID(ctx, repoID)",y
+42,e21c37703e,routers/api/v1/repo/collaborators.go,107,invalid-usage-of-modified-variable,"user, err := user_model.GetUserByName(ctx, ctx.PathParam(""collaborator""))",n
+43,e806566b39,routers/web/repo/setting/lfs.go,311,unsafe-template-type,"ctx.Data[""LineNums""] = gotemplate.HTML(output.String())",n
+44,e806566b39,services/context/base.go,168,open-redirect,"http.Redirect(b.Resp, b.Req, location, code)",n
+45,e21c37703e,routers/web/user/setting/security/2fa.go,137,unsafe-template-type,"ctx.Data[""QrUri""] = template.URL(""data:image/png;base64,"" + base64.StdEncoding.EncodeToString(imgBytes.Bytes()))",n
+46,e21c37703e,routers/api/v1/repo/repo.go,240,invalid-usage-of-modified-variable,"repo, err := repo_service.CreateRepository(ctx, ctx.Doer, owner, repo_service.CreateRepoOptions{",y
+47,e806566b39,routers/api/v1/user/helper.go,15,invalid-usage-of-modified-variable,"user, err := user_model.GetUserByName(ctx, username)",n
+48,66c672d0b7,modules/templates/page.go,15,import-text-template,"texttemplate ""text/template""",n
+49,fc9800b383,modules/setting/mailer.go,11,import-text-template,"""text/template""",n
+50,e21c37703e,routers/web/repo/pull_merge_box.go,31,unsafe-template-type,"ret = append(ret, template.HTML(template.HTMLEscapeString(v)))",n
+51,66c672d0b7,modules/util/util.go,13,math-random-used,"rand2 ""math/rand/v2""",n
+52,7668e7c00d,services/context/access_log.go,11,import-text-template,"""text/template""",n
+53,e21c37703e,services/context/context_template.go,99,unsafe-template-type,"return template.URL(s + ""/"" + strings.TrimPrefix(link[0], ""/""))",n
+54,e21c37703e,routers/web/user/setting/security/2fa.go,137,unescaped-data-in-url,"ctx.Data[""QrUri""] = template.URL(""data:image/png;base64,"" + base64.StdEncoding.EncodeToString(imgBytes.Bytes()))",n
+55,2d3ad4a530,services/context/base.go,168,open-redirect,"http.Redirect(b.Resp, b.Req, location, code)",n
+56,66c672d0b7,modules/setting/mailer.go,11,import-text-template,"""text/template""",n
+57,e21c37703e,routers/web/repo/setting/lfs.go,305,unsafe-template-type,"ctx.Data[""FileContent""] = gotemplate.HTML(output.String())",n
+58,b7cfa4e67e,routers/web/misc/misc.go,53,no-direct-write-to-responsewriter,"_, err := rw.Write([]byte(agit.SshInfoJson))",y
+59,66c672d0b7,modules/templates/helper.go,163,unsafe-template-type,return template.URL(url.QueryEscape(s)),y
+60,e21c37703e,routers/api/v1/repo/issue_reaction.go,430,invalid-usage-of-modified-variable,"reaction, err := issue_service.CreateIssueReaction(ctx, ctx.Doer, issue, form.Reaction)",n

@@ -1,0 +1,1141 @@
+##### FINDING 1  rule=cookie-missing-secure  file=pkg/server/service/loadbalancer/sticky.go  flagged_line=139
+commit message: Preserve leading dot in sticky session cookie Domain attribute
+files changed by commit (5): pkg/config/dynamic/http_config.go, pkg/provider/kubernetes/ingress-nginx/kubernetes_test.go, pkg/provider/kubernetes/ingress-nginx/translator.go, pkg/server/service/loadbalancer/sticky.go, pkg/server/service/loadbalancer/sticky_test.go
+changes to the flagged file: 
+    @@ -27,8 +27,9 @@ type stickyCookie struct {
+    -	name     string
+    -	secure   bool
+    -	httpOnly bool
+    -	sameSite http.SameSite
+    -	maxAge   int
+    -	expires  time.Duration
+    -	path     string
+    -	domain   string
+    +	name               string
+    +	secure             bool
+    +	httpOnly           bool
+    +	sameSite           http.SameSite
+    +	maxAge             int
+    +	expires            time.Duration
+    +	path               string
+    +	domain             string
+    +	preserveLeadingDot bool
+    @@ -54,7 +55,8 @@ func NewSticky(cookieConfig dynamic.Cookie) *Sticky {
+    -		name:     cookieConfig.Name,
+    -		secure:   cookieConfig.Secure,
+    -		httpOnly: cookieConfig.HTTPOnly,
+    -		sameSite: convertSameSite(cookieConfig.SameSite),
+    -		maxAge:   cookieConfig.MaxAge,
+    -		path:     "/",
+    -		domain:   cookieConfig.Domain,
+    +		name:               cookieConfig.Name,
+    +		secure:             cookieConfig.Secure,
+    +		httpOnly:           cookieConfig.HTTPOnly,
+    +		sameSite:           convertSameSite(cookieConfig.SameSite),
+code around the flagged line:
+   131: func (s *Sticky) WriteStickyCookie(rw http.ResponseWriter, name string) error {
+   132: 	s.handlersMu.RLock()
+   133: 	hash, ok := s.hashMap[name]
+   134: 	s.handlersMu.RUnlock()
+   135: 	if !ok {
+   136: 		return fmt.Errorf("no hash found for handler named %s", name)
+   137: 	}
+   138: 
+>> 139: 	cookie := &http.Cookie{
+   140: 		Name:     s.cookie.name,
+   141: 		Value:    hash,
+   142: 		Path:     s.cookie.path,
+   143: 		Domain:   s.cookie.domain,
+   144: 		HttpOnly: s.cookie.httpOnly,
+   145: 		Secure:   s.cookie.secure,
+   146: 		SameSite: s.cookie.sameSite,
+   147: 		MaxAge:   s.cookie.maxAge,
+
+##### FINDING 2  rule=cookie-missing-httponly  file=pkg/server/service/loadbalancer/wrr/wrr.go  flagged_line=191
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   183: 			http.Error(w, errNoAvailableServer.Error(), http.StatusServiceUnavailable)
+   184: 		} else {
+   185: 			http.Error(w, err.Error(), http.StatusInternalServerError)
+   186: 		}
+   187: 		return
+   188: 	}
+   189: 
+   190: 	if b.stickyCookie != nil {
+>> 191: 		cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: "/", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}
+   192: 		http.SetCookie(w, cookie)
+   193: 	}
+   194: 
+   195: 	server.ServeHTTP(w, req)
+   196: }
+   197: 
+   198: // AddService adds a handler.
+   199: // A handler with a non-positive weight is ignored.
+
+##### FINDING 3  rule=missing-ssl-minversion  file=pkg/server/router/tcp/router.go  flagged_line=413
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   405: 			peeked: peeked.String(),
+   406: 		}, nil // Not TLS.
+   407: 	}
+   408: 
+   409: 	var (
+   410: 		sni    string
+   411: 		protos []string
+   412: 	)
+>> 413: 	server := tls.Server(readOnlyConn{r: br}, &tls.Config{
+   414: 		GetConfigForClient: func(hello *tls.ClientHelloInfo) (*tls.Config, error) {
+   415: 			sni = hello.ServerName
+   416: 			protos = hello.SupportedProtos
+   417: 			// This error prevents unnecessary additional steps in the TLS ClientHello message processing.
+   418: 			return nil, errClientHelloRead
+   419: 		},
+   420: 	})
+   421: 
+
+##### FINDING 4  rule=use-of-sha1  file=pkg/server/cookie/cookie.go  flagged_line=26
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   18: 
+   19: 	return GenerateName(backendName)
+   20: }
+   21: 
+   22: // GenerateName Generate a hashed name.
+   23: func GenerateName(backendName string) string {
+   24: 	data := []byte("_TRAEFIK_BACKEND_" + backendName)
+   25: 
+>> 26: 	hash := sha1.New()
+   27: 	_, err := hash.Write(data)
+   28: 	if err != nil {
+   29: 		// Impossible case
+   30: 		log.WithoutContext().Errorf("Fail to create cookie name: %v", err)
+   31: 	}
+   32: 
+   33: 	return fmt.Sprintf("_%x", hash.Sum(nil))[:cookieNameLength]
+   34: }
+
+##### FINDING 5  rule=missing-ssl-minversion  file=pkg/server/server_entrypoint_tcp_http3.go  flagged_line=61
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   53: 	if readTimeout := time.Duration(configuration.Transport.RespondingTimeouts.ReadTimeout); readTimeout != 0 {
+   54: 		handler = withReadTimeout(ctx, handler, readTimeout)
+   55: 	}
+   56: 
+   57: 	h3.Server = &http3.Server{
+   58: 		Addr:           configuration.GetAddress(),
+   59: 		Port:           configuration.HTTP3.AdvertisedPort,
+   60: 		Handler:        handler,
+>> 61: 		TLSConfig:      &tls.Config{GetConfigForClient: h3.getTLSConfigForClient},
+   62: 		MaxHeaderBytes: configuration.HTTP.MaxHeaderBytes,
+   63: 		IdleTimeout:    time.Duration(configuration.Transport.RespondingTimeouts.IdleTimeout),
+   64: 		QUICConfig: &quic.Config{
+   65: 			Allow0RTT: false,
+   66: 		},
+   67: 		ConnContext: func(ctx context.Context, c *quic.Conn) context.Context {
+   68: 			tlsOptionsName, err := h3.getTLSOptionsName(c)
+   69: 			if err != nil {
+
+##### FINDING 6  rule=cookie-missing-httponly  file=pkg/server/service/loadbalancer/sticky.go  flagged_line=139
+commit message: Preserve leading dot in sticky session cookie Domain attribute
+files changed by commit (5): pkg/config/dynamic/http_config.go, pkg/provider/kubernetes/ingress-nginx/kubernetes_test.go, pkg/provider/kubernetes/ingress-nginx/translator.go, pkg/server/service/loadbalancer/sticky.go, pkg/server/service/loadbalancer/sticky_test.go
+changes to the flagged file: 
+    @@ -27,8 +27,9 @@ type stickyCookie struct {
+    -	name     string
+    -	secure   bool
+    -	httpOnly bool
+    -	sameSite http.SameSite
+    -	maxAge   int
+    -	expires  time.Duration
+    -	path     string
+    -	domain   string
+    +	name               string
+    +	secure             bool
+    +	httpOnly           bool
+    +	sameSite           http.SameSite
+    +	maxAge             int
+    +	expires            time.Duration
+    +	path               string
+    +	domain             string
+    +	preserveLeadingDot bool
+    @@ -54,7 +55,8 @@ func NewSticky(cookieConfig dynamic.Cookie) *Sticky {
+    -		name:     cookieConfig.Name,
+    -		secure:   cookieConfig.Secure,
+    -		httpOnly: cookieConfig.HTTPOnly,
+    -		sameSite: convertSameSite(cookieConfig.SameSite),
+    -		maxAge:   cookieConfig.MaxAge,
+    -		path:     "/",
+    -		domain:   cookieConfig.Domain,
+    +		name:               cookieConfig.Name,
+    +		secure:             cookieConfig.Secure,
+    +		httpOnly:           cookieConfig.HTTPOnly,
+    +		sameSite:           convertSameSite(cookieConfig.SameSite),
+code around the flagged line:
+   131: func (s *Sticky) WriteStickyCookie(rw http.ResponseWriter, name string) error {
+   132: 	s.handlersMu.RLock()
+   133: 	hash, ok := s.hashMap[name]
+   134: 	s.handlersMu.RUnlock()
+   135: 	if !ok {
+   136: 		return fmt.Errorf("no hash found for handler named %s", name)
+   137: 	}
+   138: 
+>> 139: 	cookie := &http.Cookie{
+   140: 		Name:     s.cookie.name,
+   141: 		Value:    hash,
+   142: 		Path:     s.cookie.path,
+   143: 		Domain:   s.cookie.domain,
+   144: 		HttpOnly: s.cookie.httpOnly,
+   145: 		Secure:   s.cookie.secure,
+   146: 		SameSite: s.cookie.sameSite,
+   147: 		MaxAge:   s.cookie.maxAge,
+
+##### FINDING 7  rule=missing-ssl-minversion  file=pkg/provider/acme/provider.go  flagged_line=449
+commit message: Bump github.com/go-acme/lego/v5 to v5.4.1
+files changed by commit (3): go.mod, go.sum, pkg/provider/acme/provider.go
+changes to the flagged file: 
+    @@ -944,4 +944,5 @@ func (p *Provider) renewCertificates(ctx context.Context, renewPeriod time.Durat
+    -			Bundle:         true,
+    -			EmailAddresses: p.EmailAddresses,
+    -			Profile:        p.Profile,
+    -			PreferredChain: p.PreferredChain,
+    +			Bundle:           true,
+    +			EmailAddresses:   p.EmailAddresses,
+    +			Profile:          p.Profile,
+    +			PreferredChain:   p.PreferredChain,
+    +			EnableCommonName: !p.DisableCommonName,
+code around the flagged line:
+   441: 
+   442: 	useSystemCertPool, _ := strconv.ParseBool(os.Getenv("LEGO_CA_SYSTEM_CERT_POOL"))
+   443: 
+   444: 	certPool, err := lego.CreateCertPool(strings.Split(customCACertsPath, string(os.PathListSeparator)), useSystemCertPool)
+   445: 	if err != nil {
+   446: 		return nil, fmt.Errorf("creating cert pool: %w", err)
+   447: 	}
+   448: 
+>> 449: 	return &tls.Config{
+   450: 		ServerName: serverName,
+   451: 		RootCAs:    certPool,
+   452: 	}, nil
+   453: }
+   454: 
+   455: func (p *Provider) initAccount() (*Account, error) {
+   456: 	if p.account == nil || len(p.account.Email) == 0 {
+   457: 		var err error
+
+##### FINDING 8  rule=no-direct-write-to-responsewriter  file=pkg/provider/acme/challenge_http.go  flagged_line=91
+commit message: Disable recursive nss propagation by default for DNS challenge
+files changed by commit (1): pkg/provider/acme/provider.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   83: 		if err != nil {
+   84: 			logger.Debugf("Unable to split host and port: %v. Fallback to request host.", err)
+   85: 			domain = req.Host
+   86: 		}
+   87: 
+   88: 		tokenValue := c.getTokenValue(ctx, token, domain)
+   89: 		if len(tokenValue) > 0 {
+   90: 			rw.WriteHeader(http.StatusOK)
+>> 91: 			_, err = rw.Write(tokenValue)
+   92: 			if err != nil {
+   93: 				logger.Errorf("Unable to write token: %v", err)
+   94: 			}
+   95: 			return
+   96: 		}
+   97: 	}
+   98: 
+   99: 	rw.WriteHeader(http.StatusNotFound)
+
+##### FINDING 9  rule=missing-ssl-minversion  file=pkg/server/service/roundtripper.go  flagged_line=139
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   131: 	}
+   132: 
+   133: 	if cfg.ForwardingTimeouts != nil {
+   134: 		transport.ResponseHeaderTimeout = time.Duration(cfg.ForwardingTimeouts.ResponseHeaderTimeout)
+   135: 		transport.IdleConnTimeout = time.Duration(cfg.ForwardingTimeouts.IdleConnTimeout)
+   136: 	}
+   137: 
+   138: 	if cfg.InsecureSkipVerify || len(cfg.RootCAs) > 0 || len(cfg.ServerName) > 0 || len(cfg.Certificates) > 0 || cfg.PeerCertURI != "" {
+>> 139: 		transport.TLSClientConfig = &tls.Config{
+   140: 			ServerName:         cfg.ServerName,
+   141: 			InsecureSkipVerify: cfg.InsecureSkipVerify,
+   142: 			RootCAs:            createRootCACertPool(cfg.RootCAs),
+   143: 			Certificates:       cfg.Certificates.GetCertificates(),
+   144: 		}
+   145: 
+   146: 		if cfg.PeerCertURI != "" {
+   147: 			transport.TLSClientConfig.VerifyPeerCertificate = func(rawCerts [][]byte, _ [][]*x509.Certificate) error {
+
+##### FINDING 10  rule=cookie-missing-httponly  file=pkg/server/service/loadbalancer/sticky.go  flagged_line=137
+commit message: Fix sticky cookie expiration per request
+files changed by commit (2): pkg/server/service/loadbalancer/sticky.go, pkg/server/service/loadbalancer/sticky_test.go
+changes to the flagged file: 
+    @@ -32 +32 @@ type stickyCookie struct {
+    -	expires  time.Time
+    +	expires  time.Duration
+    @@ -66 +66 @@ func NewSticky(cookieConfig dynamic.Cookie) *Sticky {
+    -		cookie.expires = time.Now().Add(time.Duration(cookieConfig.Expires) * time.Second)
+    +		cookie.expires = time.Duration(cookieConfig.Expires) * time.Second
+    @@ -146 +146,3 @@ func (s *Sticky) WriteStickyCookie(rw http.ResponseWriter, name string) error {
+    -		Expires:  s.cookie.expires,
+    +	}
+    +	if s.cookie.expires > 0 {
+    +		cookie.Expires = time.Now().Add(s.cookie.expires)
+code around the flagged line:
+   129: func (s *Sticky) WriteStickyCookie(rw http.ResponseWriter, name string) error {
+   130: 	s.handlersMu.RLock()
+   131: 	hash, ok := s.hashMap[name]
+   132: 	s.handlersMu.RUnlock()
+   133: 	if !ok {
+   134: 		return fmt.Errorf("no hash found for handler named %s", name)
+   135: 	}
+   136: 
+>> 137: 	cookie := &http.Cookie{
+   138: 		Name:     s.cookie.name,
+   139: 		Value:    hash,
+   140: 		Path:     s.cookie.path,
+   141: 		Domain:   s.cookie.domain,
+   142: 		HttpOnly: s.cookie.httpOnly,
+   143: 		Secure:   s.cookie.secure,
+   144: 		SameSite: s.cookie.sameSite,
+   145: 		MaxAge:   s.cookie.maxAge,
+
+##### FINDING 11  rule=math-random-used  file=pkg/server/service/udp/service.go  flagged_line=7
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package udp
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net"
+   9: 	"time"
+   10: 
+   11: 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+   12: 	"github.com/traefik/traefik/v2/pkg/log"
+   13: 	"github.com/traefik/traefik/v2/pkg/server/provider"
+   14: 	"github.com/traefik/traefik/v2/pkg/udp"
+   15: )
+
+##### FINDING 12  rule=no-direct-write-to-responsewriter-taint  file=pkg/provider/acme/challenge_http.go  flagged_line=91
+commit message: Disable recursive nss propagation by default for DNS challenge
+files changed by commit (1): pkg/provider/acme/provider.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   83: 		if err != nil {
+   84: 			logger.Debugf("Unable to split host and port: %v. Fallback to request host.", err)
+   85: 			domain = req.Host
+   86: 		}
+   87: 
+   88: 		tokenValue := c.getTokenValue(ctx, token, domain)
+   89: 		if len(tokenValue) > 0 {
+   90: 			rw.WriteHeader(http.StatusOK)
+>> 91: 			_, err = rw.Write(tokenValue)
+   92: 			if err != nil {
+   93: 				logger.Errorf("Unable to write token: %v", err)
+   94: 			}
+   95: 			return
+   96: 		}
+   97: 	}
+   98: 
+   99: 	rw.WriteHeader(http.StatusNotFound)
+
+##### FINDING 13  rule=math-random-used  file=pkg/server/service/udp/service.go  flagged_line=7
+commit message: Reject negative weights in TCP and UDP weighted services
+files changed by commit (10): docs/content/migration/v2.md, docs/content/routing/services/index.md, pkg/server/service/tcp/service.go, pkg/server/service/tcp/service_test.go, pkg/server/service/udp/service.go, pkg/server/service/udp/service_test.go, pkg/tcp/wrr_load_balancer.go, pkg/tcp/wrr_load_balancer_test.go, pkg/udp/wrr_load_balancer.go, pkg/udp/wrr_load_balancer_test.go
+changes to the flagged file: 
+    @@ -72,0 +73,7 @@ func (m *Manager) BuildUDP(rootCtx context.Context, serviceName string) (udp.Han
+    +			if service.Weight != nil && *service.Weight < 0 {
+    +				err := fmt.Errorf("invalid negative weight %d for udp service %q", *service.Weight, service.Name)
+    +				conf.AddError(err, true)
+    +				logger.Errorf("In udp service %q: %v", serviceQualifiedName, err)
+    +				return nil, err
+    +			}
+    +
+    @@ -74,0 +82 @@ func (m *Manager) BuildUDP(rootCtx context.Context, serviceName string) (udp.Han
+    +				conf.AddError(err, true)
+code around the flagged line:
+   1: package udp
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net"
+   9: 	"time"
+   10: 
+   11: 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+   12: 	"github.com/traefik/traefik/v2/pkg/log"
+   13: 	"github.com/traefik/traefik/v2/pkg/server/provider"
+   14: 	"github.com/traefik/traefik/v2/pkg/udp"
+   15: )
+
+##### FINDING 14  rule=missing-ssl-minversion  file=pkg/server/service/roundtripper.go  flagged_line=139
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: 
+    @@ -215 +215,4 @@ func containsNTLMorNegotiate(h []string) bool {
+    -		return strings.HasPrefix(s, "NTLM") || strings.HasPrefix(s, "Negotiate")
+    +		// RFC 9110 section 11.1 defines the auth-scheme as case-insensitive,
+    +		// hence a challenge is matched on its scheme token whatever its case.
+    +		scheme, _, _ := strings.Cut(s, " ")
+    +		return strings.EqualFold(scheme, "NTLM") || strings.EqualFold(scheme, "Negotiate")
+code around the flagged line:
+   131: 	}
+   132: 
+   133: 	if cfg.ForwardingTimeouts != nil {
+   134: 		transport.ResponseHeaderTimeout = time.Duration(cfg.ForwardingTimeouts.ResponseHeaderTimeout)
+   135: 		transport.IdleConnTimeout = time.Duration(cfg.ForwardingTimeouts.IdleConnTimeout)
+   136: 	}
+   137: 
+   138: 	if cfg.InsecureSkipVerify || len(cfg.RootCAs) > 0 || len(cfg.ServerName) > 0 || len(cfg.Certificates) > 0 || cfg.PeerCertURI != "" {
+>> 139: 		transport.TLSClientConfig = &tls.Config{
+   140: 			ServerName:         cfg.ServerName,
+   141: 			InsecureSkipVerify: cfg.InsecureSkipVerify,
+   142: 			RootCAs:            createRootCACertPool(cfg.RootCAs),
+   143: 			Certificates:       cfg.Certificates.GetCertificates(),
+   144: 		}
+   145: 
+   146: 		if cfg.PeerCertURI != "" {
+   147: 			transport.TLSClientConfig.VerifyPeerCertificate = func(rawCerts [][]byte, _ [][]*x509.Certificate) error {
+
+##### FINDING 15  rule=math-random-used  file=pkg/server/service/tcp/service.go  flagged_line=7
+commit message: Reject negative weights in TCP and UDP weighted services
+files changed by commit (10): docs/content/migration/v2.md, docs/content/routing/services/index.md, pkg/server/service/tcp/service.go, pkg/server/service/tcp/service_test.go, pkg/server/service/udp/service.go, pkg/server/service/udp/service_test.go, pkg/tcp/wrr_load_balancer.go, pkg/tcp/wrr_load_balancer_test.go, pkg/udp/wrr_load_balancer.go, pkg/udp/wrr_load_balancer_test.go
+changes to the flagged file: 
+    @@ -78,0 +79,7 @@ func (m *Manager) BuildTCP(rootCtx context.Context, serviceName string) (tcp.Han
+    +			if service.Weight != nil && *service.Weight < 0 {
+    +				err := fmt.Errorf("invalid negative weight %d for service %q", *service.Weight, service.Name)
+    +				conf.AddError(err, true)
+    +				logger.Errorf("In service %q: %v", serviceQualifiedName, err)
+    +				return nil, err
+    +			}
+    +
+    @@ -80,0 +88 @@ func (m *Manager) BuildTCP(rootCtx context.Context, serviceName string) (tcp.Han
+    +				conf.AddError(err, true)
+code around the flagged line:
+   1: package tcp
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net"
+   9: 	"time"
+   10: 
+   11: 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+   12: 	"github.com/traefik/traefik/v2/pkg/log"
+   13: 	"github.com/traefik/traefik/v2/pkg/server/provider"
+   14: 	"github.com/traefik/traefik/v2/pkg/tcp"
+   15: )
+
+##### FINDING 16  rule=cookie-missing-httponly  file=pkg/server/service/loadbalancer/wrr/wrr.go  flagged_line=191
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   183: 			http.Error(w, errNoAvailableServer.Error(), http.StatusServiceUnavailable)
+   184: 		} else {
+   185: 			http.Error(w, err.Error(), http.StatusInternalServerError)
+   186: 		}
+   187: 		return
+   188: 	}
+   189: 
+   190: 	if b.stickyCookie != nil {
+>> 191: 		cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: "/", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}
+   192: 		http.SetCookie(w, cookie)
+   193: 	}
+   194: 
+   195: 	server.ServeHTTP(w, req)
+   196: }
+   197: 
+   198: // AddService adds a handler.
+   199: // A handler with a non-positive weight is ignored.
+
+##### FINDING 17  rule=missing-ssl-minversion  file=pkg/server/router/tcp/router.go  flagged_line=413
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   405: 			peeked: peeked.String(),
+   406: 		}, nil // Not TLS.
+   407: 	}
+   408: 
+   409: 	var (
+   410: 		sni    string
+   411: 		protos []string
+   412: 	)
+>> 413: 	server := tls.Server(readOnlyConn{r: br}, &tls.Config{
+   414: 		GetConfigForClient: func(hello *tls.ClientHelloInfo) (*tls.Config, error) {
+   415: 			sni = hello.ServerName
+   416: 			protos = hello.SupportedProtos
+   417: 			// This error prevents unnecessary additional steps in the TLS ClientHello message processing.
+   418: 			return nil, errClientHelloRead
+   419: 		},
+   420: 	})
+   421: 
+
+##### FINDING 18  rule=missing-ssl-minversion  file=pkg/provider/acme/provider.go  flagged_line=421
+commit message: Do not require recursive nameservers propagation by default for the DNS-01 challenge
+files changed by commit (6): docs/content/reference/install-configuration/configuration-options.md, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/provider/acme/provider.go, pkg/redactor/redactor_config_test.go, pkg/redactor/testdata/anonymized-static-config.json
+changes to the flagged file: 
+    @@ -103,3 +103,3 @@ type DNSChallenge struct {
+    -	Provider    string       `description:"Use a DNS-01 based challenge provider rather than HTTPS." json:"provider,omitempty" toml:"provider,omitempty" yaml:"provider,omitempty" export:"true"`
+    -	Resolvers   []string     `description:"Use following DNS servers to resolve the FQDN authority." json:"resolvers,omitempty" toml:"resolvers,omitempty" yaml:"resolvers,omitempty"`
+    -	Propagation *Propagation `description:"DNS propagation checks configuration" json:"propagation,omitempty" toml:"propagation,omitempty" yaml:"propagation,omitempty"  label:"allowEmpty" file:"allowEmpty" export:"true"`
+    +	Provider    string      `description:"Use a DNS-01 based challenge provider rather than HTTPS." json:"provider,omitempty" toml:"provider,omitempty" yaml:"provider,omitempty" export:"true"`
+    +	Resolvers   []string    `description:"Use following DNS servers to resolve the FQDN authority." json:"resolvers,omitempty" toml:"resolvers,omitempty" yaml:"resolvers,omitempty"`
+    +	Propagation Propagation `description:"DNS propagation checks configuration" json:"propagation,omitempty" toml:"propagation,omitempty" yaml:"propagation,omitempty"  label:"allowEmpty" file:"allowEmpty" export:"true"`
+    @@ -361,7 +361,3 @@ func (p *Provider) getClient() (*lego.Client, error) {
+    -			dns01.LazyCondOption(propagation != nil, func() dns01.ChallengeOption {
+    -				return dns01.CombineOptions(
+    -					dns01.CondOptions(propagation.DisableANSChecks, dns01.DisableAuthoritativeNssPropagationRequirement()),
+    -					dns01.CondOptions(!propagation.RequireAllRNS, dns01.DisableRecursiveNSsPropagationRequirement()),
+    -					dns01.PropagationWait(time.Duration(propagation.DelayBeforeChecks), propagation.DisableChecks),
+    -				)
+    -			}),
+    +			dns01.CondOptions(propagation.DisableANSChecks, dns01.DisableAuthoritativeNssPropagationRequirement()),
+    +			dns01.CondOptions(!propagation.RequireAllRNS, dns01.DisableRecursiveNSsPropagationRequirement()),
+    +			dns01.PropagationWait(time.Duration(propagation.DelayBeforeChecks), propagation.DisableChecks),
+code around the flagged line:
+   413: 
+   414: func (p *Provider) createClientTLSConfig() (*tls.Config, error) {
+   415: 	if len(p.CACertificates) > 0 || p.CAServerName != "" {
+   416: 		certPool, err := lego.CreateCertPool(p.CACertificates, p.CASystemCertPool)
+   417: 		if err != nil {
+   418: 			return nil, fmt.Errorf("creating cert pool with custom certificates: %w", err)
+   419: 		}
+   420: 
+>> 421: 		return &tls.Config{
+   422: 			ServerName: p.CAServerName,
+   423: 			RootCAs:    certPool,
+   424: 		}, nil
+   425: 	}
+   426: 
+   427: 	// Compatibility layer with the lego.
+   428: 	// https://github.com/go-acme/lego/blob/834a9089f143e3407b3f5c8b93a0e285ba231fe2/lego/client_config.go#L24-L34
+   429: 	// https://github.com/go-acme/lego/blob/834a9089f143e3407b3f5c8b93a0e285ba231fe2/lego/client_config.go#L97-L113
+
+##### FINDING 19  rule=no-direct-write-to-responsewriter-taint  file=pkg/provider/acme/challenge_http.go  flagged_line=91
+commit message: Bump github.com/go-acme/lego/v5 to v5.4.1
+files changed by commit (3): go.mod, go.sum, pkg/provider/acme/provider.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   83: 		if err != nil {
+   84: 			logger.Debug().Err(err).Msg("Unable to split host and port. Fallback to request host.")
+   85: 			domain = req.Host
+   86: 		}
+   87: 
+   88: 		tokenValue := c.getTokenValue(logger.WithContext(req.Context()), token, domain)
+   89: 		if len(tokenValue) > 0 {
+   90: 			rw.WriteHeader(http.StatusOK)
+>> 91: 			_, err = rw.Write(tokenValue)
+   92: 			if err != nil {
+   93: 				logger.Error().Err(err).Msg("Unable to write token")
+   94: 			}
+   95: 			return
+   96: 		}
+   97: 	}
+   98: 
+   99: 	rw.WriteHeader(http.StatusNotFound)
+
+##### FINDING 20  rule=math-random-used  file=pkg/server/service/loadbalancer/p2c/p2c.go  flagged_line=6
+commit message: Preserve leading dot in sticky session cookie Domain attribute
+files changed by commit (5): pkg/config/dynamic/http_config.go, pkg/provider/kubernetes/ingress-nginx/kubernetes_test.go, pkg/provider/kubernetes/ingress-nginx/translator.go, pkg/server/service/loadbalancer/sticky.go, pkg/server/service/loadbalancer/sticky_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package p2c
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+>> 6: 	"math/rand"
+   7: 	"net/http"
+   8: 	"sync"
+   9: 	"sync/atomic"
+   10: 	"time"
+   11: 
+   12: 	"github.com/rs/zerolog/log"
+   13: 	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+   14: 	"github.com/traefik/traefik/v3/pkg/server/service/loadbalancer"
+
+##### FINDING 21  rule=math-random-used  file=pkg/server/service/udp/service.go  flagged_line=7
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package udp
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net"
+   9: 	"time"
+   10: 
+   11: 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+   12: 	"github.com/traefik/traefik/v2/pkg/log"
+   13: 	"github.com/traefik/traefik/v2/pkg/server/provider"
+   14: 	"github.com/traefik/traefik/v2/pkg/udp"
+   15: )
+
+##### FINDING 22  rule=no-direct-write-to-responsewriter  file=pkg/provider/acme/challenge_http.go  flagged_line=91
+commit message: Do not require recursive nameservers propagation by default for the DNS-01 challenge
+files changed by commit (6): docs/content/reference/install-configuration/configuration-options.md, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/provider/acme/provider.go, pkg/redactor/redactor_config_test.go, pkg/redactor/testdata/anonymized-static-config.json
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   83: 		if err != nil {
+   84: 			logger.Debug().Err(err).Msg("Unable to split host and port. Fallback to request host.")
+   85: 			domain = req.Host
+   86: 		}
+   87: 
+   88: 		tokenValue := c.getTokenValue(logger.WithContext(req.Context()), token, domain)
+   89: 		if len(tokenValue) > 0 {
+   90: 			rw.WriteHeader(http.StatusOK)
+>> 91: 			_, err = rw.Write(tokenValue)
+   92: 			if err != nil {
+   93: 				logger.Error().Err(err).Msg("Unable to write token")
+   94: 			}
+   95: 			return
+   96: 		}
+   97: 	}
+   98: 
+   99: 	rw.WriteHeader(http.StatusNotFound)
+
+##### FINDING 23  rule=use-of-sha1  file=pkg/provider/kubernetes/crd/kubernetes.go  flagged_line=1306
+commit message: Downgrade default TLS resources namespace mismatch log to warning
+files changed by commit (1): pkg/provider/kubernetes/crd/kubernetes.go
+changes to the flagged file: 
+    @@ -1357 +1357 @@ func (p *Provider) buildTLSOptions(ctx context.Context, client Client) map[strin
+    -			logger.Error().Msgf("Ignoring default TLS options: they can only be defined in the %q namespace", p.DefaultTLSResourcesNamespace)
+    +			logger.Warn().Msgf("Ignoring default TLS options: they can only be defined in the %q namespace", p.DefaultTLSResourcesNamespace)
+    @@ -1441 +1441 @@ func (p *Provider) buildTLSStores(ctx context.Context, client Client) (map[strin
+    -			logger.Error().Msgf("Ignoring default TLS store: it can only be defined in the %q namespace", p.DefaultTLSResourcesNamespace)
+    +			logger.Warn().Msgf("Ignoring default TLS store: it can only be defined in the %q namespace", p.DefaultTLSResourcesNamespace)
+code around the flagged line:
+   1298: 
+   1299: func loadBasicAuthCredentials(secret *corev1.Secret) ([]string, error) {
+   1300: 	username, usernameExists := secret.Data["username"]
+   1301: 	password, passwordExists := secret.Data["password"]
+   1302: 	if !(usernameExists && passwordExists) {
+   1303: 		return nil, fmt.Errorf("secret '%s/%s' must contain both username and password keys", secret.Namespace, secret.Name)
+   1304: 	}
+   1305: 
+>> 1306: 	hash := sha1.New()
+   1307: 	hash.Write(password)
+   1308: 	passwordSum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+   1309: 
+   1310: 	return []string{fmt.Sprintf("%s:{SHA}%s", username, passwordSum)}, nil
+   1311: }
+   1312: 
+   1313: func loadAuthCredentials(secret *corev1.Secret) ([]string, error) {
+   1314: 	if len(secret.Data) != 1 {
+
+##### FINDING 24  rule=math-random-used  file=pkg/server/service/service.go  flagged_line=7
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package service
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net/http"
+   9: 	"net/http/httputil"
+   10: 	"net/url"
+   11: 	"reflect"
+   12: 	"time"
+   13: 
+   14: 	"github.com/containous/alice"
+   15: 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+
+##### FINDING 25  rule=cookie-missing-secure  file=pkg/server/service/loadbalancer/wrr/wrr.go  flagged_line=191
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   183: 			http.Error(w, errNoAvailableServer.Error(), http.StatusServiceUnavailable)
+   184: 		} else {
+   185: 			http.Error(w, err.Error(), http.StatusInternalServerError)
+   186: 		}
+   187: 		return
+   188: 	}
+   189: 
+   190: 	if b.stickyCookie != nil {
+>> 191: 		cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: "/", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}
+   192: 		http.SetCookie(w, cookie)
+   193: 	}
+   194: 
+   195: 	server.ServeHTTP(w, req)
+   196: }
+   197: 
+   198: // AddService adds a handler.
+   199: // A handler with a non-positive weight is ignored.
+
+##### FINDING 26  rule=math-random-used  file=pkg/server/service/service.go  flagged_line=7
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package service
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net/http"
+   9: 	"net/http/httputil"
+   10: 	"net/url"
+   11: 	"reflect"
+   12: 	"time"
+   13: 
+   14: 	"github.com/containous/alice"
+   15: 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+
+##### FINDING 27  rule=no-direct-write-to-responsewriter-taint  file=pkg/provider/acme/challenge_http.go  flagged_line=91
+commit message: Do not require recursive nameservers propagation by default for the DNS-01 challenge
+files changed by commit (6): docs/content/reference/install-configuration/configuration-options.md, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/provider/acme/provider.go, pkg/redactor/redactor_config_test.go, pkg/redactor/testdata/anonymized-static-config.json
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   83: 		if err != nil {
+   84: 			logger.Debug().Err(err).Msg("Unable to split host and port. Fallback to request host.")
+   85: 			domain = req.Host
+   86: 		}
+   87: 
+   88: 		tokenValue := c.getTokenValue(logger.WithContext(req.Context()), token, domain)
+   89: 		if len(tokenValue) > 0 {
+   90: 			rw.WriteHeader(http.StatusOK)
+>> 91: 			_, err = rw.Write(tokenValue)
+   92: 			if err != nil {
+   93: 				logger.Error().Err(err).Msg("Unable to write token")
+   94: 			}
+   95: 			return
+   96: 		}
+   97: 	}
+   98: 
+   99: 	rw.WriteHeader(http.StatusNotFound)
+
+##### FINDING 28  rule=math-random-used  file=pkg/server/service/tcp/service.go  flagged_line=7
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package tcp
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net"
+   9: 	"time"
+   10: 
+   11: 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+   12: 	"github.com/traefik/traefik/v2/pkg/log"
+   13: 	"github.com/traefik/traefik/v2/pkg/server/provider"
+   14: 	"github.com/traefik/traefik/v2/pkg/tcp"
+   15: )
+
+##### FINDING 29  rule=math-random-used  file=pkg/server/service/tcp/service.go  flagged_line=7
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package tcp
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+   6: 	"fmt"
+>> 7: 	"math/rand"
+   8: 	"net"
+   9: 	"time"
+   10: 
+   11: 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+   12: 	"github.com/traefik/traefik/v2/pkg/log"
+   13: 	"github.com/traefik/traefik/v2/pkg/server/provider"
+   14: 	"github.com/traefik/traefik/v2/pkg/tcp"
+   15: )
+
+##### FINDING 30  rule=no-direct-write-to-responsewriter  file=pkg/server/service/proxy.go  flagged_line=144
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   136: 			// Log the error with error level if it is a TLS error related to configuration.
+   137: 			if isTLSConfigError(err) {
+   138: 				logger.Errorf("'%d %s' caused by: %v", statusCode, statusText(statusCode), err)
+   139: 			} else {
+   140: 				logger.Debugf("'%d %s' caused by: %v", statusCode, statusText(statusCode), err)
+   141: 			}
+   142: 
+   143: 			w.WriteHeader(statusCode)
+>> 144: 			_, werr := w.Write([]byte(statusText(statusCode)))
+   145: 			if werr != nil {
+   146: 				log.WithoutContext().Debugf("Error while writing status code", werr)
+   147: 			}
+   148: 		},
+   149: 	}
+   150: 
+   151: 	return newConnectHandler(proxy), nil
+   152: }
+
+##### FINDING 31  rule=missing-ssl-minversion  file=pkg/provider/acme/provider.go  flagged_line=445
+commit message: Do not require recursive nameservers propagation by default for the DNS-01 challenge
+files changed by commit (6): docs/content/reference/install-configuration/configuration-options.md, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/provider/acme/provider.go, pkg/redactor/redactor_config_test.go, pkg/redactor/testdata/anonymized-static-config.json
+changes to the flagged file: 
+    @@ -103,3 +103,3 @@ type DNSChallenge struct {
+    -	Provider    string       `description:"Use a DNS-01 based challenge provider rather than HTTPS." json:"provider,omitempty" toml:"provider,omitempty" yaml:"provider,omitempty" export:"true"`
+    -	Resolvers   []string     `description:"Use following DNS servers to resolve the FQDN authority." json:"resolvers,omitempty" toml:"resolvers,omitempty" yaml:"resolvers,omitempty"`
+    -	Propagation *Propagation `description:"DNS propagation checks configuration" json:"propagation,omitempty" toml:"propagation,omitempty" yaml:"propagation,omitempty"  label:"allowEmpty" file:"allowEmpty" export:"true"`
+    +	Provider    string      `description:"Use a DNS-01 based challenge provider rather than HTTPS." json:"provider,omitempty" toml:"provider,omitempty" yaml:"provider,omitempty" export:"true"`
+    +	Resolvers   []string    `description:"Use following DNS servers to resolve the FQDN authority." json:"resolvers,omitempty" toml:"resolvers,omitempty" yaml:"resolvers,omitempty"`
+    +	Propagation Propagation `description:"DNS propagation checks configuration" json:"propagation,omitempty" toml:"propagation,omitempty" yaml:"propagation,omitempty"  label:"allowEmpty" file:"allowEmpty" export:"true"`
+    @@ -361,7 +361,3 @@ func (p *Provider) getClient() (*lego.Client, error) {
+    -			dns01.LazyCondOption(propagation != nil, func() dns01.ChallengeOption {
+    -				return dns01.CombineOptions(
+    -					dns01.CondOptions(propagation.DisableANSChecks, dns01.DisableAuthoritativeNssPropagationRequirement()),
+    -					dns01.CondOptions(!propagation.RequireAllRNS, dns01.DisableRecursiveNSsPropagationRequirement()),
+    -					dns01.PropagationWait(time.Duration(propagation.DelayBeforeChecks), propagation.DisableChecks),
+    -				)
+    -			}),
+    +			dns01.CondOptions(propagation.DisableANSChecks, dns01.DisableAuthoritativeNssPropagationRequirement()),
+    +			dns01.CondOptions(!propagation.RequireAllRNS, dns01.DisableRecursiveNSsPropagationRequirement()),
+    +			dns01.PropagationWait(time.Duration(propagation.DelayBeforeChecks), propagation.DisableChecks),
+code around the flagged line:
+   437: 
+   438: 	useSystemCertPool, _ := strconv.ParseBool(os.Getenv("LEGO_CA_SYSTEM_CERT_POOL"))
+   439: 
+   440: 	certPool, err := lego.CreateCertPool(strings.Split(customCACertsPath, string(os.PathListSeparator)), useSystemCertPool)
+   441: 	if err != nil {
+   442: 		return nil, fmt.Errorf("creating cert pool: %w", err)
+   443: 	}
+   444: 
+>> 445: 	return &tls.Config{
+   446: 		ServerName: serverName,
+   447: 		RootCAs:    certPool,
+   448: 	}, nil
+   449: }
+   450: 
+   451: func (p *Provider) initAccount() (*Account, error) {
+   452: 	if p.account == nil || len(p.account.Email) == 0 {
+   453: 		var err error
+
+##### FINDING 32  rule=missing-ssl-minversion  file=pkg/provider/acme/provider.go  flagged_line=425
+commit message: Bump github.com/go-acme/lego/v5 to v5.4.1
+files changed by commit (3): go.mod, go.sum, pkg/provider/acme/provider.go
+changes to the flagged file: 
+    @@ -944,4 +944,5 @@ func (p *Provider) renewCertificates(ctx context.Context, renewPeriod time.Durat
+    -			Bundle:         true,
+    -			EmailAddresses: p.EmailAddresses,
+    -			Profile:        p.Profile,
+    -			PreferredChain: p.PreferredChain,
+    +			Bundle:           true,
+    +			EmailAddresses:   p.EmailAddresses,
+    +			Profile:          p.Profile,
+    +			PreferredChain:   p.PreferredChain,
+    +			EnableCommonName: !p.DisableCommonName,
+code around the flagged line:
+   417: 
+   418: func (p *Provider) createClientTLSConfig() (*tls.Config, error) {
+   419: 	if len(p.CACertificates) > 0 || p.CAServerName != "" {
+   420: 		certPool, err := lego.CreateCertPool(p.CACertificates, p.CASystemCertPool)
+   421: 		if err != nil {
+   422: 			return nil, fmt.Errorf("creating cert pool with custom certificates: %w", err)
+   423: 		}
+   424: 
+>> 425: 		return &tls.Config{
+   426: 			ServerName: p.CAServerName,
+   427: 			RootCAs:    certPool,
+   428: 		}, nil
+   429: 	}
+   430: 
+   431: 	// Compatibility layer with the lego.
+   432: 	// https://github.com/go-acme/lego/blob/834a9089f143e3407b3f5c8b93a0e285ba231fe2/lego/client_config.go#L24-L34
+   433: 	// https://github.com/go-acme/lego/blob/834a9089f143e3407b3f5c8b93a0e285ba231fe2/lego/client_config.go#L97-L113
+
+##### FINDING 33  rule=use-of-sha1  file=pkg/server/cookie/cookie.go  flagged_line=26
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   18: 
+   19: 	return GenerateName(backendName)
+   20: }
+   21: 
+   22: // GenerateName Generate a hashed name.
+   23: func GenerateName(backendName string) string {
+   24: 	data := []byte("_TRAEFIK_BACKEND_" + backendName)
+   25: 
+>> 26: 	hash := sha1.New()
+   27: 	_, err := hash.Write(data)
+   28: 	if err != nil {
+   29: 		// Impossible case
+   30: 		log.WithoutContext().Errorf("Fail to create cookie name: %v", err)
+   31: 	}
+   32: 
+   33: 	return fmt.Sprintf("_%x", hash.Sum(nil))[:cookieNameLength]
+   34: }
+
+##### FINDING 34  rule=no-direct-write-to-responsewriter  file=pkg/middlewares/auth/forward.go  flagged_line=191
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: 
+    @@ -196,0 +197,2 @@ func (fa *forwardAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+    +	// Note: the header names aliasing the authResponseHeaders (e.g. X_Auth_User or X.Auth.User) are not handled here,
+    +	// as the aliasHeadersStrategy entry point option is expected to be enabled to prevent header spoofing.
+code around the flagged line:
+   183: 		} else if redirectURL.String() != "" {
+   184: 			// Set the location in our response if one was sent back.
+   185: 			rw.Header().Set("Location", redirectURL.String())
+   186: 		}
+   187: 
+   188: 		tracing.LogResponseCode(tracing.GetSpan(req), forwardResponse.StatusCode)
+   189: 		rw.WriteHeader(forwardResponse.StatusCode)
+   190: 
+>> 191: 		if _, err = rw.Write(body); err != nil {
+   192: 			logger.Error(err)
+   193: 		}
+   194: 		return
+   195: 	}
+   196: 
+   197: 	// Note: the header names aliasing the authResponseHeaders (e.g. X_Auth_User or X.Auth.User) are not handled here,
+   198: 	// as the aliasHeadersStrategy entry point option is expected to be enabled to prevent header spoofing.
+   199: 	for _, headerName := range fa.authResponseHeaders {
+
+##### FINDING 35  rule=math-random-used  file=pkg/server/service/loadbalancer/p2c/p2c.go  flagged_line=6
+commit message: Fix sticky cookie expiration per request
+files changed by commit (2): pkg/server/service/loadbalancer/sticky.go, pkg/server/service/loadbalancer/sticky_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   1: package p2c
+   2: 
+   3: import (
+   4: 	"context"
+   5: 	"errors"
+>> 6: 	"math/rand"
+   7: 	"net/http"
+   8: 	"sync"
+   9: 	"sync/atomic"
+   10: 	"time"
+   11: 
+   12: 	"github.com/rs/zerolog/log"
+   13: 	"github.com/traefik/traefik/v3/pkg/config/dynamic"
+   14: 	"github.com/traefik/traefik/v3/pkg/server/service/loadbalancer"
+
+##### FINDING 36  rule=cookie-missing-secure  file=pkg/server/service/loadbalancer/sticky.go  flagged_line=137
+commit message: Fix sticky cookie expiration per request
+files changed by commit (2): pkg/server/service/loadbalancer/sticky.go, pkg/server/service/loadbalancer/sticky_test.go
+changes to the flagged file: 
+    @@ -32 +32 @@ type stickyCookie struct {
+    -	expires  time.Time
+    +	expires  time.Duration
+    @@ -66 +66 @@ func NewSticky(cookieConfig dynamic.Cookie) *Sticky {
+    -		cookie.expires = time.Now().Add(time.Duration(cookieConfig.Expires) * time.Second)
+    +		cookie.expires = time.Duration(cookieConfig.Expires) * time.Second
+    @@ -146 +146,3 @@ func (s *Sticky) WriteStickyCookie(rw http.ResponseWriter, name string) error {
+    -		Expires:  s.cookie.expires,
+    +	}
+    +	if s.cookie.expires > 0 {
+    +		cookie.Expires = time.Now().Add(s.cookie.expires)
+code around the flagged line:
+   129: func (s *Sticky) WriteStickyCookie(rw http.ResponseWriter, name string) error {
+   130: 	s.handlersMu.RLock()
+   131: 	hash, ok := s.hashMap[name]
+   132: 	s.handlersMu.RUnlock()
+   133: 	if !ok {
+   134: 		return fmt.Errorf("no hash found for handler named %s", name)
+   135: 	}
+   136: 
+>> 137: 	cookie := &http.Cookie{
+   138: 		Name:     s.cookie.name,
+   139: 		Value:    hash,
+   140: 		Path:     s.cookie.path,
+   141: 		Domain:   s.cookie.domain,
+   142: 		HttpOnly: s.cookie.httpOnly,
+   143: 		Secure:   s.cookie.secure,
+   144: 		SameSite: s.cookie.sameSite,
+   145: 		MaxAge:   s.cookie.maxAge,
+
+##### FINDING 37  rule=missing-ssl-minversion  file=pkg/server/server_entrypoint_tcp_http3.go  flagged_line=62
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: 
+    @@ -18,0 +19 @@ import (
+    +	"github.com/traefik/traefik/v2/pkg/server/service"
+    @@ -67,0 +69,3 @@ func newHTTP3Server(ctx context.Context, configuration *static.EntryPoint, https
+    +			// This adds an empty struct in order to store a RoundTripper in the ConnContext in case of Kerberos or NTLM.
+    +			ctx = service.AddTransportOnContext(ctx)
+    +
+    @@ -72,0 +77 @@ func newHTTP3Server(ctx context.Context, configuration *static.EntryPoint, https
+    +
+code around the flagged line:
+   54: 	if readTimeout := time.Duration(configuration.Transport.RespondingTimeouts.ReadTimeout); readTimeout != 0 {
+   55: 		handler = withReadTimeout(ctx, handler, readTimeout)
+   56: 	}
+   57: 
+   58: 	h3.Server = &http3.Server{
+   59: 		Addr:           configuration.GetAddress(),
+   60: 		Port:           configuration.HTTP3.AdvertisedPort,
+   61: 		Handler:        handler,
+>> 62: 		TLSConfig:      &tls.Config{GetConfigForClient: h3.getTLSConfigForClient},
+   63: 		MaxHeaderBytes: configuration.HTTP.MaxHeaderBytes,
+   64: 		IdleTimeout:    time.Duration(configuration.Transport.RespondingTimeouts.IdleTimeout),
+   65: 		QUICConfig: &quic.Config{
+   66: 			Allow0RTT: false,
+   67: 		},
+   68: 		ConnContext: func(ctx context.Context, c *quic.Conn) context.Context {
+   69: 			// This adds an empty struct in order to store a RoundTripper in the ConnContext in case of Kerberos or NTLM.
+   70: 			ctx = service.AddTransportOnContext(ctx)
+
+##### FINDING 38  rule=no-direct-write-to-responsewriter  file=pkg/server/service/proxy.go  flagged_line=146
+commit message: Dedicate a transport per HTTP/3 client connection
+files changed by commit (4): pkg/server/server_entrypoint_tcp_http3.go, pkg/server/server_entrypoint_tcp_http3_test.go, pkg/server/service/roundtripper.go, pkg/server/service/roundtripper_test.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   138: 			// Log the error with error level if it is a TLS error related to configuration.
+   139: 			if isTLSConfigError(err) {
+   140: 				logger.Errorf("'%d %s' caused by: %v", statusCode, statusText(statusCode), err)
+   141: 			} else {
+   142: 				logger.Debugf("'%d %s' caused by: %v", statusCode, statusText(statusCode), err)
+   143: 			}
+   144: 
+   145: 			w.WriteHeader(statusCode)
+>> 146: 			_, werr := w.Write([]byte(statusText(statusCode)))
+   147: 			if werr != nil {
+   148: 				log.WithoutContext().Debugf("Error while writing status code", werr)
+   149: 			}
+   150: 		},
+   151: 	}
+   152: 
+   153: 	return newConnectHandler(newH2CUpgradeHandler(proxy)), nil
+   154: }
+
+##### FINDING 39  rule=no-direct-write-to-responsewriter  file=pkg/proxy/httputil/proxy.go  flagged_line=209
+commit message: Do not forward request trailer values to the backend
+files changed by commit (3): pkg/proxy/fast/trailer_test.go, pkg/proxy/httputil/proxy.go, pkg/proxy/httputil/trailer_test.go
+changes to the flagged file: 
+    @@ -109,0 +110,13 @@ func rewriteRequestBuilder(target *url.URL, passHostHeader bool, preservePath bo
+    +		// Forward the declared request trailer names, but never their values: they arrive
+    +		// after the header section, once routing and security decisions are made, and would
+    +		// otherwise reach the backend under a name sanitized in the header section.
+    +		// Discarding them is allowed by https://www.rfc-editor.org/rfc/rfc9112#section-7.1.2,
+    +		// and the names are kept as the hint of what was dropped described in
+    +		// https://www.rfc-editor.org/rfc/rfc9110#section-6.6.2
+    +		// Emptying the outgoing map is what makes this hold whatever the middleware chain did
+    +		// to the incoming request, as the transport only writes pr.Out.Trailer.
+    +		// Response trailers are unaffected.
+    +		for name := range pr.Out.Trailer {
+    +			pr.Out.Trailer[name] = nil
+    +		}
+    +
+code around the flagged line:
+   201: 	// Log the error with error level if it is a TLS error related to configuration.
+   202: 	if isTLSConfigError(err) {
+   203: 		logger.Error().Err(err).Msgf("%d %s", statusCode, statusText(statusCode))
+   204: 	} else {
+   205: 		logger.Debug().Err(err).Msgf("%d %s", statusCode, statusText(statusCode))
+   206: 	}
+   207: 
+   208: 	w.WriteHeader(statusCode)
+>> 209: 	if _, werr := w.Write([]byte(statusText(statusCode))); werr != nil {
+   210: 		logger.Debug().Err(werr).Msg("Error while writing status code")
+   211: 	}
+   212: }
+   213: 
+   214: func statusText(statusCode int) string {
+   215: 	if statusCode == StatusClientClosedRequest {
+   216: 		return StatusClientClosedRequestText
+   217: 	}
+
+##### FINDING 40  rule=cookie-missing-secure  file=pkg/server/service/loadbalancer/wrr/wrr.go  flagged_line=191
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   183: 			http.Error(w, errNoAvailableServer.Error(), http.StatusServiceUnavailable)
+   184: 		} else {
+   185: 			http.Error(w, err.Error(), http.StatusInternalServerError)
+   186: 		}
+   187: 		return
+   188: 	}
+   189: 
+   190: 	if b.stickyCookie != nil {
+>> 191: 		cookie := &http.Cookie{Name: b.stickyCookie.name, Value: hash(server.name), Path: "/", HttpOnly: b.stickyCookie.httpOnly, Secure: b.stickyCookie.secure}
+   192: 		http.SetCookie(w, cookie)
+   193: 	}
+   194: 
+   195: 	server.ServeHTTP(w, req)
+   196: }
+   197: 
+   198: // AddService adds a handler.
+   199: // A handler with a non-positive weight is ignored.
+
+##### FINDING 41  rule=no-direct-write-to-responsewriter-taint  file=pkg/middlewares/auth/forward.go  flagged_line=191
+commit message: Add an entry point option to handle request headers with aliasing names
+files changed by commit (27): docs/content/deprecation/features.md, docs/content/migration/v2.md, docs/content/reference/static-configuration/cli-ref.md, docs/content/reference/static-configuration/env-ref.md, docs/content/reference/static-configuration/file.toml, docs/content/reference/static-configuration/file.yaml, docs/content/routing/entrypoints.md, docs/content/security/header-aliases.md, docs/content/security/header-underscores.md, docs/mkdocs.yml, integration/fixtures/simple_alias_headers.toml, integration/simple_test.go, pkg/config/static/entrypoints.go, pkg/config/static/static_config.go, pkg/config/static/static_config_test.go, pkg/middlewares/auth/basic_auth.go, pkg/middlewares/auth/digest_auth.go, pkg/middlewares/auth/forward.go, pkg/middlewares/forwardedheaders/forwarded_header.go, pkg/middlewares/headers/header.go, pkg/middlewares/passtlsclientcert/pass_tls_client_cert.go, pkg/middlewares/replacepath/replace_path.go, pkg/middlewares/replacepathregex/replace_path_regex.go, pkg/middlewares/stripprefix/strip_prefix.go, pkg/middlewares/stripprefixregex/strip_prefix_regex.go ...
+changes to the flagged file: 
+    @@ -196,0 +197,2 @@ func (fa *forwardAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+    +	// Note: the header names aliasing the authResponseHeaders (e.g. X_Auth_User or X.Auth.User) are not handled here,
+    +	// as the aliasHeadersStrategy entry point option is expected to be enabled to prevent header spoofing.
+code around the flagged line:
+   183: 		} else if redirectURL.String() != "" {
+   184: 			// Set the location in our response if one was sent back.
+   185: 			rw.Header().Set("Location", redirectURL.String())
+   186: 		}
+   187: 
+   188: 		tracing.LogResponseCode(tracing.GetSpan(req), forwardResponse.StatusCode)
+   189: 		rw.WriteHeader(forwardResponse.StatusCode)
+   190: 
+>> 191: 		if _, err = rw.Write(body); err != nil {
+   192: 			logger.Error(err)
+   193: 		}
+   194: 		return
+   195: 	}
+   196: 
+   197: 	// Note: the header names aliasing the authResponseHeaders (e.g. X_Auth_User or X.Auth.User) are not handled here,
+   198: 	// as the aliasHeadersStrategy entry point option is expected to be enabled to prevent header spoofing.
+   199: 	for _, headerName := range fa.authResponseHeaders {
+
+##### FINDING 42  rule=no-direct-write-to-responsewriter  file=pkg/provider/acme/challenge_http.go  flagged_line=91
+commit message: Bump github.com/go-acme/lego/v5 to v5.4.1
+files changed by commit (3): go.mod, go.sum, pkg/provider/acme/provider.go
+changes to the flagged file: NONE (file not changed)
+code around the flagged line:
+   83: 		if err != nil {
+   84: 			logger.Debug().Err(err).Msg("Unable to split host and port. Fallback to request host.")
+   85: 			domain = req.Host
+   86: 		}
+   87: 
+   88: 		tokenValue := c.getTokenValue(logger.WithContext(req.Context()), token, domain)
+   89: 		if len(tokenValue) > 0 {
+   90: 			rw.WriteHeader(http.StatusOK)
+>> 91: 			_, err = rw.Write(tokenValue)
+   92: 			if err != nil {
+   93: 				logger.Error().Err(err).Msg("Unable to write token")
+   94: 			}
+   95: 			return
+   96: 		}
+   97: 	}
+   98: 
+   99: 	rw.WriteHeader(http.StatusNotFound)

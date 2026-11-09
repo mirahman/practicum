@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Review queue for one commit</title>
+<style>
+:root{--bg:#fff;--fg:#1f2937;--mut:#5b6577;--card:#f5f7fa;--navy:#1b2a4e;--blue:#2f5bd3;--red:#b03a2e;--line:#e5e7eb;--ok:#e3f1e6;--okf:#1f6b36;--gone:#fbe9e7;--gonef:#8a2f23;--keep:#fff3d6;--keepf:#7a5a05}
+@media (prefers-color-scheme:dark){:root{--bg:#10151f;--fg:#e6e9ef;--mut:#9aa4b8;--card:#1a2230;--navy:#c9d3ea;--blue:#7fa2ff;--red:#ff8a7a;--line:#2a3447;--ok:#183a24;--okf:#8be0a4;--gone:#3d1d19;--gonef:#ffb3a8;--keep:#3a2f10;--keepf:#ffd77a}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 Calibri,Segoe UI,Arial,sans-serif}
+.wrap{max-width:1150px;margin:0 auto;padding:24px 16px 48px}
+h1{font:700 28px Georgia,serif;color:var(--navy);margin:0 0 4px}
+.sub{color:var(--mut);margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 18px}
+.card{background:var(--card);border-radius:10px;padding:14px;text-align:center;color:var(--mut)}
+.big{font:700 40px Georgia,serif;color:var(--navy)}
+.card:nth-child(4) .big{color:var(--red)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;cursor:pointer}
+button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;color:var(--mut);font-weight:600;border-bottom:2px solid var(--line);padding:6px 8px}
+td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top}
+.fn{color:var(--mut);font-size:13px}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:13px}
+.tag.ok{background:var(--ok);color:var(--okf)}.tag.gone{background:var(--gone);color:var(--gonef)}.tag.keep{background:var(--keep);color:var(--keepf)}
+.tag.art{background:var(--red);color:#fff;margin-left:6px}
+tr.removed td{opacity:.8}
+.count{color:var(--mut)}
+@media (max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="wrap">
+<h1>Review queue for commit 0331801c7232</h1>
+<div class="sub">Add an entry point option to handle request headers with aliasing names | 27 files changed | view: cautious</div>
+<div class="cards"><div class="card"><div class="big">12</div><div>full diff scan</div></div><div class="card"><div class="big">6</div><div>function filter only</div></div><div class="card"><div class="big">0</div><div>baseline differencing only</div></div><div class="card"><div class="big">0</div><div>differencing, then filter</div></div></div>
+<div class="bar">
+  <span>Start from:</span>
+  <button id="b_full" class="on">Full diff scan</button>
+  <button id="b_diff">After baseline differencing</button>
+  <span style="width:16px"></span>
+  <button id="b_removed">Show removed findings</button>
+  <span class="count" id="count"></span>
+</div>
+<table><thead><tr><th>Where</th><th>Rule</th><th>Function</th><th>Why it stays or goes</th></tr></thead>
+<tbody id="rows">
+<tr class="kept norep" data-kept="1" data-rep="0"><td>pkg/middlewares/auth/forward.go:191</td><td>go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter</td><td class="fn">(*github.com/traefik/traefik/v2/pkg/middlewares/auth.forwardAuth).ServeHTTP</td><td><span class="tag ok">In a function the commit changes</span></td></tr>
+<tr class="kept norep" data-kept="1" data-rep="0"><td>pkg/middlewares/auth/forward.go:191</td><td>go.net.xss.no-direct-write-to-responsewriter-taint.no-direct-write-to-responsewriter-taint</td><td class="fn">(*github.com/traefik/traefik/v2/pkg/middlewares/auth.forwardAuth).ServeHTTP</td><td><span class="tag ok">In a function the commit changes</span></td></tr>
+<tr class="removed norep" data-kept="0" data-rep="0"><td>pkg/server/cookie/cookie.go:26</td><td>go.lang.security.audit.crypto.use_of_weak_crypto.use-of-sha1</td><td class="fn">github.com/traefik/traefik/v2/pkg/server/cookie.GenerateName</td><td><span class="tag gone">No link to the commit&#x27;s changes (removed)</span></td></tr>
+<tr class="removed norep" data-kept="0" data-rep="0"><td>pkg/server/router/tcp/router.go:413</td><td>go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion</td><td class="fn">github.com/traefik/traefik/v2/pkg/server/router/tcp.clientHelloInfo</td><td><span class="tag gone">No link to the commit&#x27;s changes (removed)</span></td></tr>
+<tr class="kept norep" data-kept="1" data-rep="0"><td>pkg/server/server_entrypoint_tcp_http3.go:61</td><td>go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion</td><td class="fn">github.com/traefik/traefik/v2/pkg/server.newHTTP3Server</td><td><span class="tag ok">Within one call of a changed function</span></td></tr>
+<tr class="removed norep" data-kept="0" data-rep="0"><td>pkg/server/service/loadbalancer/wrr/wrr.go:191</td><td>go.lang.security.audit.net.cookie-missing-httponly.cookie-missing-httponly</td><td class="fn">(*github.com/traefik/traefik/v2/pkg/server/service/loadbalancer/wrr.Balancer).ServeHTTP</td><td><span class="tag gone">No link to the commit&#x27;s changes (removed)</span></td></tr>
+<tr class="removed norep" data-kept="0" data-rep="0"><td>pkg/server/service/loadbalancer/wrr/wrr.go:191</td><td>go.lang.security.audit.net.cookie-missing-secure.cookie-missing-secure</td><td class="fn">(*github.com/traefik/traefik/v2/pkg/server/service/loadbalancer/wrr.Balancer).ServeHTTP</td><td><span class="tag gone">No link to the commit&#x27;s changes (removed)</span></td></tr>
+<tr class="removed norep" data-kept="0" data-rep="0"><td>pkg/server/service/proxy.go:144</td><td>go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter</td><td class="fn">github.com/traefik/traefik/v2/pkg/server/service.buildProxy</td><td><span class="tag gone">No link to the commit&#x27;s changes (removed)</span></td></tr>
+<tr class="removed norep" data-kept="0" data-rep="0"><td>pkg/server/service/roundtripper.go:139</td><td>go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion</td><td class="fn">github.com/traefik/traefik/v2/pkg/server/service.createRoundTripper</td><td><span class="tag gone">No link to the commit&#x27;s changes (removed)</span></td></tr>
+<tr class="kept norep" data-kept="1" data-rep="0"><td>pkg/server/service/service.go:7</td><td>go.lang.security.audit.crypto.math_random.math-random-used</td><td class="fn"></td><td><span class="tag keep">Outside any function (always kept)</span></td></tr>
+<tr class="kept norep" data-kept="1" data-rep="0"><td>pkg/server/service/tcp/service.go:7</td><td>go.lang.security.audit.crypto.math_random.math-random-used</td><td class="fn"></td><td><span class="tag keep">Outside any function (always kept)</span></td></tr>
+<tr class="kept norep" data-kept="1" data-rep="0"><td>pkg/server/service/udp/service.go:7</td><td>go.lang.security.audit.crypto.math_random.math-random-used</td><td class="fn"></td><td><span class="tag keep">Outside any function (always kept)</span></td></tr>
+</tbody></table>
+</div>
+<script>
+var mode="full", showRemoved=false;
+function apply(){
+  var rows=document.querySelectorAll("#rows tr"), kept=0, shown=0;
+  rows.forEach(function(tr){
+    var inQueue = mode==="full" || tr.getAttribute("data-rep")==="1";
+    var isKept = tr.getAttribute("data-kept")==="1";
+    var show = inQueue && (isKept || showRemoved);
+    tr.style.display = show ? "" : "none";
+    if(inQueue && isKept) kept++;
+    if(show) shown++;
+  });
+  document.getElementById("count").textContent = kept + " findings in the queue" + (showRemoved ? " (" + shown + " rows shown)" : "");
+  document.getElementById("b_full").className = mode==="full" ? "on" : "";
+  document.getElementById("b_diff").className = mode==="diff" ? "on" : "";
+  document.getElementById("b_removed").className = showRemoved ? "on" : "";
+}
+document.getElementById("b_full").onclick=function(){mode="full";apply();};
+document.getElementById("b_diff").onclick=function(){mode="diff";apply();};
+document.getElementById("b_removed").onclick=function(){showRemoved=!showRemoved;apply();};
+apply();
+</script></body></html>

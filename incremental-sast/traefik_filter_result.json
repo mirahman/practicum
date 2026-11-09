@@ -1,0 +1,446 @@
+[
+  {
+    "commit": "0331801c72329e0eaeb850e53ccce87c57fbecf8",
+    "changed_pkgs": 11,
+    "findings": 12,
+    "graph_packages": 142,
+    "graph_edges": 678,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 6,
+      "related_2hop": 3,
+      "unrelated": 1
+    },
+    "detail": [
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/middlewares/auth/forward.go",
+        "line": 191,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.net.xss.no-direct-write-to-responsewriter-taint.no-direct-write-to-responsewriter-taint",
+        "file": "pkg/middlewares/auth/forward.go",
+        "line": 191,
+        "spurious": false
+      },
+      {
+        "bucket": "related_2hop",
+        "rule": "go.lang.security.audit.crypto.use_of_weak_crypto.use-of-sha1",
+        "file": "pkg/server/cookie/cookie.go",
+        "line": 26,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/server/router/tcp/router.go",
+        "line": 413,
+        "spurious": false
+      },
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/server/server_entrypoint_tcp_http3.go",
+        "line": 61,
+        "spurious": false
+      },
+      {
+        "bucket": "related_2hop",
+        "rule": "go.lang.security.audit.net.cookie-missing-httponly.cookie-missing-httponly",
+        "file": "pkg/server/service/loadbalancer/wrr/wrr.go",
+        "line": 191,
+        "spurious": false
+      },
+      {
+        "bucket": "related_2hop",
+        "rule": "go.lang.security.audit.net.cookie-missing-secure.cookie-missing-secure",
+        "file": "pkg/server/service/loadbalancer/wrr/wrr.go",
+        "line": 191,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/server/service/proxy.go",
+        "line": 144,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/server/service/roundtripper.go",
+        "line": 139,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/service.go",
+        "line": 7,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/tcp/service.go",
+        "line": 7,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/udp/service.go",
+        "line": 7,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "0c90dbee1acbdc9c7eb5def641b770c75b1063fa",
+    "changed_pkgs": 3,
+    "findings": 4,
+    "graph_packages": 151,
+    "graph_edges": 697,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 2
+    },
+    "detail": [
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/provider/acme/challenge_http.go",
+        "line": 91,
+        "spurious": false
+      },
+      {
+        "bucket": "unrelated",
+        "rule": "go.net.xss.no-direct-write-to-responsewriter-taint.no-direct-write-to-responsewriter-taint",
+        "file": "pkg/provider/acme/challenge_http.go",
+        "line": 91,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/provider/acme/provider.go",
+        "line": 421,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/provider/acme/provider.go",
+        "line": 445,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "43bc3aff61a8857f6101ef79c3eb894472478c4d",
+    "changed_pkgs": 1,
+    "findings": 3,
+    "graph_packages": 151,
+    "graph_edges": 696,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 1
+    },
+    "detail": [
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/loadbalancer/p2c/p2c.go",
+        "line": 6,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.net.cookie-missing-httponly.cookie-missing-httponly",
+        "file": "pkg/server/service/loadbalancer/sticky.go",
+        "line": 137,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.net.cookie-missing-secure.cookie-missing-secure",
+        "file": "pkg/server/service/loadbalancer/sticky.go",
+        "line": 137,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "46ac3ac6ce90bbc5f6773d988a0704ed5d9e3157",
+    "changed_pkgs": 3,
+    "findings": 3,
+    "graph_packages": 151,
+    "graph_edges": 697,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 1
+    },
+    "detail": [
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/loadbalancer/p2c/p2c.go",
+        "line": 6,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.net.cookie-missing-httponly.cookie-missing-httponly",
+        "file": "pkg/server/service/loadbalancer/sticky.go",
+        "line": 139,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.net.cookie-missing-secure.cookie-missing-secure",
+        "file": "pkg/server/service/loadbalancer/sticky.go",
+        "line": 139,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "55bbda4f65e0f9c533c870983a767a7081126db7",
+    "changed_pkgs": 2,
+    "findings": 1,
+    "graph_packages": 151,
+    "graph_edges": 697,
+    "buckets": {
+      "touched": 1,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 0
+    },
+    "detail": [
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/proxy/httputil/proxy.go",
+        "line": 209,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "591a5e9a36f93c2ecf885272cf7421c8b25b55a5",
+    "changed_pkgs": 1,
+    "findings": 1,
+    "graph_packages": 151,
+    "graph_edges": 697,
+    "buckets": {
+      "touched": 1,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 0
+    },
+    "detail": [
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.use_of_weak_crypto.use-of-sha1",
+        "file": "pkg/provider/kubernetes/crd/kubernetes.go",
+        "line": 1306,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "9ee201299d6e8bebd8694c85a9594aff189b225e",
+    "changed_pkgs": 1,
+    "findings": 4,
+    "graph_packages": 151,
+    "graph_edges": 697,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 2
+    },
+    "detail": [
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/provider/acme/challenge_http.go",
+        "line": 91,
+        "spurious": false
+      },
+      {
+        "bucket": "unrelated",
+        "rule": "go.net.xss.no-direct-write-to-responsewriter-taint.no-direct-write-to-responsewriter-taint",
+        "file": "pkg/provider/acme/challenge_http.go",
+        "line": 91,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/provider/acme/provider.go",
+        "line": 425,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/provider/acme/provider.go",
+        "line": 449,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "c827fa1ed19418d0d571a3f6fc03d1f16c6419fa",
+    "changed_pkgs": 1,
+    "findings": 2,
+    "graph_packages": 142,
+    "graph_edges": 678,
+    "buckets": {
+      "touched": 0,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 2
+    },
+    "detail": [
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/provider/acme/challenge_http.go",
+        "line": 91,
+        "spurious": false
+      },
+      {
+        "bucket": "unrelated",
+        "rule": "go.net.xss.no-direct-write-to-responsewriter-taint.no-direct-write-to-responsewriter-taint",
+        "file": "pkg/provider/acme/challenge_http.go",
+        "line": 91,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "e028ffb86dc9e767cf599ac4d10b1066e3884805",
+    "changed_pkgs": 4,
+    "findings": 2,
+    "graph_packages": 142,
+    "graph_edges": 678,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 0,
+      "related_2hop": 0,
+      "unrelated": 0
+    },
+    "detail": [
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/tcp/service.go",
+        "line": 7,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/udp/service.go",
+        "line": 7,
+        "spurious": false
+      }
+    ]
+  },
+  {
+    "commit": "ff39c47d7459dec9cd8de63c1a4e7aa7315bdc1c",
+    "changed_pkgs": 2,
+    "findings": 10,
+    "graph_packages": 142,
+    "graph_edges": 678,
+    "buckets": {
+      "touched": 2,
+      "related_1hop": 6,
+      "related_2hop": 0,
+      "unrelated": 2
+    },
+    "detail": [
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.use_of_weak_crypto.use-of-sha1",
+        "file": "pkg/server/cookie/cookie.go",
+        "line": 26,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/server/router/tcp/router.go",
+        "line": 413,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/server/server_entrypoint_tcp_http3.go",
+        "line": 62,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.net.cookie-missing-httponly.cookie-missing-httponly",
+        "file": "pkg/server/service/loadbalancer/wrr/wrr.go",
+        "line": 191,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.net.cookie-missing-secure.cookie-missing-secure",
+        "file": "pkg/server/service/loadbalancer/wrr/wrr.go",
+        "line": 191,
+        "spurious": false
+      },
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.xss.no-direct-write-to-responsewriter.no-direct-write-to-responsewriter",
+        "file": "pkg/server/service/proxy.go",
+        "line": 146,
+        "spurious": false
+      },
+      {
+        "bucket": "touched",
+        "rule": "go.lang.security.audit.crypto.missing-ssl-minversion.missing-ssl-minversion",
+        "file": "pkg/server/service/roundtripper.go",
+        "line": 139,
+        "spurious": false
+      },
+      {
+        "bucket": "unrelated",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/service.go",
+        "line": 7,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/tcp/service.go",
+        "line": 7,
+        "spurious": false
+      },
+      {
+        "bucket": "related_1hop",
+        "rule": "go.lang.security.audit.crypto.math_random.math-random-used",
+        "file": "pkg/server/service/udp/service.go",
+        "line": 7,
+        "spurious": false
+      }
+    ]
+  }
+]
