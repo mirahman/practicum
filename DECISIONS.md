@@ -309,3 +309,7 @@ Reverted d5e6f273f, 671a2f5dc and 0c67849e6 to simulate commits that introduce t
 
 ### Demonstration
 Review-queue page (scripts/demo_report.py), one tab per repository: gitea e21c37703ed0 (56 findings, 24 kept, 1 after differencing, 0 after both) and traefik 0331801c7232 (12, 6, 0, 0).
+
+### Corrections and file counts (added Nov 9, 2026)
+CORRECTION to the exposure ratios above (19.3x gitea, 5.9x traefik; 135 and 45 files changed, 2,609 and 265 scanned): the first count was non-recursive and included test files. The recursive count that excludes test files gives 15.8x on gitea (111 changed, 1,758 scanned) and 10.9x on traefik (29 changed, 317 scanned). The direction of the prediction is unchanged. The untouched-file rates (86%, 62%) are computed from the findings and are not affected. The final report uses the corrected ratios.
+Commit e21c37703ed0 changed 27 files in total, 26 of them Go files. The "26 files" in earlier entries and in the report counts Go files only.
