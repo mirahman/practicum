@@ -282,3 +282,30 @@ Method note: reachability is via package IMPORTS (go list), not verified
 call edges - deliberately conservative (can only move findings toward
 "related", never hide a true connection), after two unrecoverable x/tools
 SSA-builder crashes ruled out the call-graph approach.
+
+
+## Added Nov 9, 2026 (written after the fact, summarizing work done after the entries above)
+
+These entries were written after the work, from the results and scripts in incremental-sast/. They are not contemporaneous records.
+
+### Function-level filter replaces the package-import filter
+The import-aware filter removed only 4.2% (gitea) and 4.8% (traefik) of findings, because files in one package call each other with no import. Replaced by a function-level filter: keep a finding if its enclosing function holds a line changed by the commit, or is linked to such a function by a call resolved with go/types. External dependencies are not resolved (too slow on gitea). Calls through an interface are linked to every method of that name (cautious view); a strict view uses direct calls only.
+=> Function-level removes 70.9% (gitea) and 57.1% (traefik) in the cautious view.
+
+### Hop limit 1
+On the commit with the verified artifact (e21c37703ed0), a 2-hop limit still counted base.go:76 as connected; 1 hop removed it and removed three times more of that commit's queue. The corpus run used 1 hop. The limit was set from one commit and not swept.
+
+### RQ4 (caching, call-graph expansion) not built
+Artifacts are 0.4% of findings (1 of 237 gitea, 0 of 42 traefik), below the proposal's own bar for building a fix.
+
+### Blind-labelled check of the filter
+All 42 traefik findings and 60 gitea findings (30 removed, 30 kept) were labelled connected or not, with the filter's verdict hidden. Labels were made mostly by an AI assistant; the author labelled a random hold-out of 20 per repository. Borderline labels default to not connected; a second reading flips them. Agreement: gitea 19 of 20; traefik 18 of 20 (not independent, because the author cross-verified those rows with the assistant).
+=> Removed but connected: 1 of 30 and 0 of 24 (default); 4 of 30 and 1 of 24 (borderline counted connected).
+Decision: report both readings, report the hold-out agreement, and disclose the AI assistance.
+
+### Recall check on three reverted gitea security fixes
+Reverted d5e6f273f, 671a2f5dc and 0c67849e6 to simulate commits that introduce the bug. Semgrep Pro 1.136.0 with p/default flagged none in the vulnerable files (scans of the changed files only). Early runs reported 0 findings in 0.2 s because the Pro binary was missing; exit status 2 showed the failure, and semgrep install-semgrep-pro fixed it.
+=> The study does not show real-vulnerability detection.
+
+### Demonstration
+Review-queue page (scripts/demo_report.py), one tab per repository: gitea e21c37703ed0 (56 findings, 24 kept, 1 after differencing, 0 after both) and traefik 0331801c7232 (12, 6, 0, 0).
