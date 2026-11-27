@@ -74,4 +74,4 @@ Two repositories, one language, one ruleset. The full scan is a check for lost s
 
 ## AI use
 
-Claude was used for debugging, drafting, labeling and parts of the code, including the function-level filter, the labeling tools and the demo page. The author ran, checked and accepted all code and results. Details are in the report's AI Usage Acknowledgement.
+Claude was used for debugging, writing, labeling and parts of the code, including the function-level filter, the labeling tools and the demo page. The author ran, checked and accepted all code and results. Details are in the report's AI Usage Acknowledgement.
